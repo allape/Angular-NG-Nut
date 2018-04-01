@@ -31,7 +31,7 @@ export class MyMqttService {
    * 创建唯一标识符
    * @returns {string | Int32Array}   32位字符串
    */
-  public static createACK() {
+  public createACK() {
     return Md5.hashStr(Date.now() + '_' + Math.random());
   }
 

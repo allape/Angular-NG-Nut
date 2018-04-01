@@ -1,5 +1,44 @@
-<p>
-  home works!
-</p>
+<!-- 列表 -->
+<nz-table #nzTable *ngIf="ts.step === steps(0)"
+          [nzIsPagination]="false"
+          [nzAjaxData]="list"
+          [nzLoading]="http.loading || ts.flags.waitResFromAndroidLoading">
+  <thead nz-thead>
+    <tr>
+      <th nz-th><span>任务编号</span></th>
+      <th nz-th><span>地址</span></th>
+      <th nz-th><span>所属商户</span></th>
+      <th nz-th><span>所属门店</span></th>
+      <th nz-th><span>创建时间</span></th>
+      <th nz-th><span>状态</span></th>
+      <th nz-th><span>操作</span></th>
+    </tr>
+  </thead>
+  <tbody nz-tbody>
+    <tr nz-tbody-tr *ngFor="let data of nzTable.data">
+      <td nz-td>{{data.taskId}}</td>
+      <td nz-td class="width-limit-200px">{{data.strAddr}}</td>
+      <td nz-td class="width-limit-200px">{{data.marName}}</td>
+      <td nz-td class="width-limit-200px">{{data.strName}}</td>
+      <td nz-td>{{data.createTime}}</td>
+      <td nz-td [ngSwitch]="data.taskState">
+        <span *ngSwitchCase="1" style="color: lightcoral;">未接收</span>
+        <span *ngSwitchCase="2" style="color: lightblue;">已接收</span>
+        <span *ngSwitchCase="3" style="color: lightgreen;">已完成</span>
+        <span *ngSwitchDefault style="color: red;">未知</span>
+      </td>
+      <td nz-td>
+        <a *ngIf="data.taskState === '1'" (click)="accept(data);">接受</a>
+      </td>
+    </tr>
+  </tbody>
+</nz-table>
 
-<app-home-index></app-home-index>
+<app-home-index *ngIf="ts.step === steps(1)"></app-home-index>
+
+
+
+<!-- 全局loading -->
+<div *ngIf="ts.flags.mask.loading" id="loadingMask">
+  <nz-spin [nzSize]="'large'" class="d-inline-block mr-sm"></nz-spin>
+</div>

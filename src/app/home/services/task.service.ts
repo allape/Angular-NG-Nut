@@ -29,6 +29,12 @@ export const MQTT_COMMANDS = {
   instru: 'instru',
 };
 
+/**
+ * 默认mqtt等待时间, 单位毫秒(ms)
+ * @type {number}
+ */
+export const DEFAULT_MQTT_TIMEOUT = 30000;
+
 @Injectable()
 export class TaskService {
 
@@ -65,16 +71,30 @@ export class TaskService {
   };
 
   /**
+   * 当前的步骤
+   * @type {string}
+   */
+  public step = STEP_FLAGS[0];
+
+  /**
    * 当前任务标记的东西
    * @type {{}}
    */
   public flags = {
+    mqtt: {
+      // 等待Android终端相应时的loading
+      waitResFromAndroidLoading:  false,
+      // Android终端相应超时计时器标识符
+      responseTimeout:            undefined
+    },
     // 侧边工具栏
     utils: {
       // 终端摄像头正在使用中
       cameraInUsingLoading:     false,
       liveStreamBtnLoading:     false,
-
+    },
+    mask: {
+      loading:                  false
     }
   };
 
@@ -88,27 +108,39 @@ export class TaskService {
     videoList:          []
   };
 
+  /**
+   * 消息队列承载的内容
+   * @type {{}}
+   */
+  public msgQueue = {
+    // 跳转确认的标识符
+    ack: undefined,
+  };
+
   constructor(
     private injector:       Injector,
-    private mqtt:           MyMqttService,
+    public  mqtt:           MyMqttService,
     private cs:             CommonService,
     private msg:            NzMessageService,
     private ntf:            NzNotificationService,
     private modal:          NzModalService,
   ) {
     // 初始化mqtt
-    this.initMqtt();
-    this.cleanOnMsgCallbacks();
+    // this.initMqtt();
+    // this.cleanOnMsgCallbacks();
   }
 
   // region MQTT相关
 
   /**
    * 初始化mqtt
+   * @param {string} userId   当前用户id, 用于初始化mqtt使用
    */
-  public initMqtt(options?: MqttServiceOptions) {
+  public initMqtt(userId: string) {
+    const options = environment.MQTT_OPTIONS;
+    options.clientId = environment.MQTT_OPTIONS.groupId + '@@@' + userId;
     // 创建mqtt连接
-    this.mqtt.init(options !== undefined ? options : environment.MQTT_OPTIONS);
+    this.mqtt.init(options);
     // 绑定事件
     this.mqtt.current().onMessage.subscribe((e) => {
       // 获取消息内容
@@ -123,11 +155,15 @@ export class TaskService {
         if (content['status'] === environment.MQTT_RES_CODES.ok) {
           // 循环触发事件
           for (const k in this.onMsgCallbacks) {
-            // 获取对应的模块并对比再触发
-            if (k === message.module) {
+            // 使用通配符来获取对应的模块并对比再触发
+            if (k.startsWith('/') ? new RegExp(k).test(content.module) : (k === content.module)) {
               for (const i in this.onMsgCallbacks[k]) {
                 if (this.onMsgCallbacks[k][i] instanceof Function)
-                  this.onMsgCallbacks[k][i].call(this, message, e.topic.toString(), e);
+                  try {
+                    this.onMsgCallbacks[k][i].call(this, content, e.topic.toString(), e);
+                  } catch (e) {
+                    this.cs.error('触发' + k + '模块下' + this.onMsgCallbacks[k][i] + '失败!');
+                  }
               }
             }
           }
@@ -138,6 +174,8 @@ export class TaskService {
         this.cs.error('Task MQTT: error in OnMsg: ', e);
       }
     });
+
+    this.cleanOnMsgCallbacks();
   }
 
   /**
@@ -149,8 +187,10 @@ export class TaskService {
       this.current.clientId === undefined || this.current.clientId === null) {
       this.msg.warning('您当前没有正在进行中的任务, 无法向客户终端推送消息!');
     }
-    this.mqtt.current().publish(this.current.clientId, typeof msg === 'object' ? JSON.stringify(msg) : msg)
-      .subscribe((err) => console.log(err));
+    // TEST 测试输出用
+    this.cs.log('模拟发送:', typeof msg === 'object' ? JSON.stringify(msg) : msg);
+    // FIXME 脱离Android终端相应开发, 测试联调需解注释下方代码
+    // this.mqtt.publish(this.current.clientId, typeof msg === 'object' ? JSON.stringify(msg) : msg);
   }
 
   /**
@@ -160,7 +200,7 @@ export class TaskService {
     this.onMsgCallbacks = {
       // 来自服务器的消息
       S01: [
-        (msg, topic, e) => {
+        (msg) => {
           switch (msg['action']) {
             case 'refresh':
               // 如果是新任务则提醒
@@ -189,10 +229,11 @@ export class TaskService {
                 // this.settings.user.state = '1';
               }
 
-              // 跳转至任务列表页面 NOTE 使用的非常规刷新页面方法, 如果 跳转的组件 发生了方法或其他什么的更改, 下方代码也需要更改
-              return this.cs.goto('/main/machine-task', 'MachineTaskComponent', (mtc) => {
+              // TODO 跳转至任务列表页面 NOTE 使用的非常规刷新页面方法, 如果 跳转的组件 发生了方法或其他什么的更改, 下方代码也需要更改
+              /*return this.cs.goto('/main/machine-task', 'MachineTaskComponent', (mtc) => {
                 mtc.load();
-              });
+              });*/
+              return ;
             default: break;
           }
         }
@@ -272,7 +313,7 @@ export class TaskService {
             this.msg.warning('解析客户终端数据失败! err: ' + res['msg']);
           }
         }
-      ]
+      ],
     };
   }
 
@@ -310,7 +351,21 @@ export class TaskService {
    * 清除当前处理中的任务, 并还原所有数据
    */
   public cleanTask() {
+    // 清空任务
     this.current = undefined;
+    // 清空侧边栏数据
+    this.utils.photoList = [];
+    this.utils.videoList = [];
+    // 还原mqtt事件列表
+    this.cleanOnMsgCallbacks();
+    // 重置mqtt内容
+    this.msgQueue.ack = this.mqtt.createACK();
+    // 还原所有标识符
+    this.flags.mask.loading                         = false;
+    this.flags.mqtt.responseTimeout                 = false;
+    this.flags.mqtt.waitResFromAndroidLoading       = false;
+    this.flags.utils.cameraInUsingLoading           = false;
+    this.flags.utils.liveStreamBtnLoading           = false;
   }
 
   // endregion 开始任务的初始化内容

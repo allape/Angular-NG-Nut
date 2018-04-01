@@ -1,7 +1,7 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import {BrowserModule} from '@angular/platform-browser';
+import {NgModule} from '@angular/core';
 
-import { AppComponent } from './app.component';
+import {AppComponent} from './app.component';
 import {RouterModule, Routes} from '@angular/router';
 import {TASK_FLOW, TaskComponent} from './home/task.component';
 import {environment} from '@env/environment';
@@ -16,7 +16,7 @@ const routes: Routes = [
     path: 'home',
     component: TaskComponent
   },
-  { path: '**', component: TaskComponent },
+  {path: '**', component: TaskComponent},
 ];
 
 // region: zorro modules
@@ -71,8 +71,12 @@ import {
   NzUploadModule,
   // SERVICES
   NzNotificationService,
-  NzMessageService, NzTransferModule
+  NzMessageService, NzTransferModule, NzCardModule
 } from 'ng-zorro-antd';
+import {HttpService} from 'app/home/services/http.service';
+import {SettingsService} from './home/services/settings.service';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+
 export const ZORROMODULES = [
   // LoggerModule,
   // NzLocaleModule,
@@ -113,7 +117,7 @@ export const ZORROMODULES = [
   NzLayoutModule,
   NzRootModule,
   NzCarouselModule,
-  // NzCardModule,
+  NzCardModule,
   NzCollapseModule,
   NzTimelineModule,
   NzToolTipModule,
@@ -137,8 +141,9 @@ export const ZORROMODULES = [
   imports: [
     // 浏览器模块
     BrowserModule,
+    BrowserAnimationsModule,
     // 路由模块,
-    RouterModule.forRoot(routes, { useHash: environment.ROUTER.useHash, enableTracing: environment.ROUTER.enableTracing }),
+    RouterModule.forRoot(routes, {useHash: environment.ROUTER.useHash, enableTracing: environment.ROUTER.enableTracing}),
     // 网络服务
     HttpClientModule,
     // zorro模块
@@ -155,8 +160,14 @@ export const ZORROMODULES = [
     // MQTT服务, 封装原有的mqtt, 实现输出自己的log
     MyMqttService,
     // 任务服务, 用于初始化MQTT监听等
-    TaskService
+    TaskService,
+
+
+    // 临时业务服务
+    HttpService,
+    SettingsService
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+}

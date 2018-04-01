@@ -13,16 +13,24 @@ export const environment = {
     // 是否打印导航信息, 仅限于调试和开发中
     enableTracing: false
   },
+
   // 默认展示的图片
   DEFAULT_PHOTO: 'assets/img/yyjr-logo.svg',
+
   // 默认的直播地址网站
   DEFAULT_LIVING_STREAM_INDEX: 'http://120.55.52.28/ls/index.html',
   // 默认的直播推送地址
   DEFAULT_LIVING_STREAM_PUSH_POINT: 'rtmp://120.55.52.28:1935/hls/',
+
   // 服务地址
-  HOST: 'http://192.168.2.49:8080',
+  HOST: 'http://120.55.52.28:8080',
   // 请求的接口列表
   REQ_URLS: {
+    // 登陆授权
+    auth: {
+      // 登陆授权
+      token:                              '/auth/token'
+    },
     // 管理员
     user: {
       // 获取当前登录对象信息及角色
@@ -51,6 +59,10 @@ export const environment = {
       updateTaskStep:                     '/api/core/business/machineTask/updateTaskStep',
       // 获取当前管理员正在处理的任务
       getDoingTaskStep:                    '/api/core/business/machineTask/getDoingTaskStep',
+      // 修改/操作任务的链接
+      task:                                '/api/core/business/machineTask/',
+      // 获取当前管理员推送的任务
+      getOnwerTaskList:                    '/api/core/business/machineTask/getOnwerTaskList'
     },
     // 公共接口
     common: {
@@ -62,6 +74,7 @@ export const environment = {
   SERVICE_RES_CODES: {
     ok: 200001,
   },
+
   // MQTT服务配置
   MQTT_OPTIONS: {
     hostname: 'mqtt-cn-4590ig7p007.mqtt.aliyuncs.com',
@@ -77,5 +90,25 @@ export const environment = {
   // MQTT终端响应代号
   MQTT_RES_CODES: {
     ok: '200'
+  },
+
+  // 标识符/字典库
+  DICTIONARY: {
+    // 管理员
+    user: {
+      // 在线状态
+      state: {
+        // 离线
+        OFFLINE:        '0',
+        // 空闲
+        ONLINE:         '1',
+        // 等待接受任务
+        WAITING:        '2',
+        // 忙碌
+        BUSY:           '3',
+        // 离开
+        OUT_OF_SERVICE: '4'
+      }
+    }
   }
 };
