@@ -64,6 +64,13 @@ export const environment = {
       // 获取当前管理员推送的任务
       getOnwerTaskList:                    '/api/core/business/machineTask/getOnwerTaskList'
     },
+    // 发送短信
+    sms: {
+      // 发送短信
+      sendMsg: '/api/core/business/trial/sendCode',
+      // 验证验证码
+      validateCode: '/api/core/business/trial/verificationCode'
+    },
     // 公共接口
     common: {
       // 获取文件访问路径
@@ -108,6 +115,18 @@ export const environment = {
         BUSY:           '3',
         // 离开
         OUT_OF_SERVICE: '4'
+      }
+    },
+    // 任务
+    task: {
+      isInvalid: {
+        VALID:          '0',
+        INVALID:        '1'
+      },
+      state: {
+        NEW:            '1',
+        PROCESSING:     '2',
+        COMPLETED:      '3'
       }
     }
   }

@@ -1,56 +1,60 @@
-import {Component, OnInit} from '@angular/core';
-import {IndexComponent} from './flow/index/index.component';
-import {TaskService, STEP_FLAGS, DEFAULT_MQTT_TIMEOUT} from './services/task.service';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {TaskService, STEP_FLAGS, DEFAULT_MQTT_TIMEOUT, MQTT_COMMANDS, MQTT_MODULES} from './services/task.service';
 import { CommonService } from './services/common.service';
 import { environment } from '@env/environment';
 import { HttpService } from './services/http.service';
-import { NzMessageService } from 'ng-zorro-antd';
+import {NzMessageService, NzModalService} from 'ng-zorro-antd';
 import { SettingsService } from './services/settings.service';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {SendmessageComponent} from './flow/step1_sendmessage/sendmessage.component';
 
 // 任务组件下的子组件集合
 export const TASK_FLOW = [
-  IndexComponent
+  SendmessageComponent
 ];
 
 @Component({
   selector: 'app-home',
   templateUrl: './task.component.html',
-  styles: [
-    `
-      .width-limit-200px {
-        width: 200px;
-      }
-
-      :host ::ng-deep #loadingMask {
-        position: fixed;
-        width: 100%;
-        height: 100%;
-        top: 0px;
-        left: 0px;
-        background-color: rgba(255, 255, 255, 0.3);
-        z-index: 1000000;
-      }
-      :host ::ng-deep #loadingMask > nz-spin {
-        position: fixed;
-        top: 45%;
-        left: 50%;
-      }
-
-    `
+  styleUrls: [
+    './task.component.css'
   ]
 })
 export class TaskComponent implements OnInit {
 
-  // 任务列表
+  /**
+   * 任务列表
+   * @type {any[]}
+   */
   list = [];
+
+  // 获取子组件
+  @ViewChild('photoViewer') photoViewer;
+  @ViewChild('videoViewer') videoViewer;
+  @ViewChild('liveStreamViewer') liveStreamViewer;
 
   constructor(
     public  ts:             TaskService,
     public  http:           HttpService,
     private cs:             CommonService,
     private msg:            NzMessageService,
-    private settings:       SettingsService
-  ) { }
+    private settings:       SettingsService,
+    private fb:             FormBuilder,
+    private modal:          NzModalService,
+  ) {
+    // 启动倒计时
+    setInterval(
+      () => {
+        if (this.ts.utils.countDown - 1 >= 0) {
+          this.ts.flags.utils.showCountingDown = true;
+          this.ts.utils.countDown--;
+        } else {
+          this.ts.flags.utils.showCountingDown = false;
+        }
+      },
+      1000
+    );
+  }
 
   /**
    * 页面渲染之前的事件
@@ -88,7 +92,7 @@ export class TaskComponent implements OnInit {
                 this.ts.initMqtt(cres.data.id);
 
                 // 绑定跳转事件
-                this.ts.onMsgCallbacks['A04-A05'] = [(ares) => {
+                this.ts.onMsgCallbacks[MQTT_MODULES.app.A04_A05] = [(ares) => {
                   // 检查动作是否为回调响应
                   if (ares['action'] === 'msgCallback' &&
                     // 检查内容
@@ -109,6 +113,21 @@ export class TaskComponent implements OnInit {
 
                 // 加载列表
                 this.load();
+
+                // TEST 模拟设置当前处理的任务
+                this.ts.current = {
+                  'deviceNo': 'Y77EDSRTEV',
+                  'marCode': '01KMKM35112',
+                  'marName': '四川成都环球中心15楼测试门店管理门店方便中心',
+                  'strAddr': '东莞东**********酒店首层',
+                  'strCode': '210004',
+                  'strName': '11域电观澜大道419号兴万达广场一楼东莞东坑十一号',
+                  'taskId': 'Y77EDSRTEV1522244603815',
+                  'taskState': '1',
+                  'taskStep': '',
+                  'clientId': this.ts.buildAndroidClientId('Y77EDSRTEV')
+                };
+                this.ts.step = STEP_FLAGS[1];
 
               } else {
                 this.msg.warning('获取您当前的信息失败! err: ' + res.msg);
@@ -141,6 +160,16 @@ export class TaskComponent implements OnInit {
         this.ts.flags.mask.loading = false;
       }
     }];*/
+
+    // 初始化拒绝表单
+    this.refuseForm = this.fb.group({
+      refuseReason: [null, [Validators.required]],
+    });
+
+    // 初始化图片, 视频, 直播的modal
+    this.ts.data.photoViewer.modal = this.photoViewer;
+    this.ts.data.photoViewer.modal = this.photoViewer;
+    this.ts.data.ls.modal = this.liveStreamViewer;
   }
 
   /**
@@ -177,21 +206,8 @@ export class TaskComponent implements OnInit {
     this.ts.flags.mqtt.waitResFromAndroidLoading = true;
     // 打开mask
     this.ts.flags.mask.loading = true;
-    // 生成ack
-    this.ts.msgQueue.ack = this.ts.mqtt.createACK();
     // 发送命令
-    this.ts.push(
-      {
-        module: 'A04-A05',
-        action: 'step',
-        type: '',
-        data: {
-          ack: this.ts.msgQueue.ack,
-        },
-        status: '',
-        msg: ''
-      }
-    );
+    this.ts.pushStepCommand(MQTT_MODULES.app.A04_A05);
     // 超时计时器
     this.ts.flags.mqtt.responseTimeout = setTimeout(() => {
       // 提示消息
@@ -205,6 +221,11 @@ export class TaskComponent implements OnInit {
       // 刷新ack, 避免延迟数据跳转
       this.ts.msgQueue.ack = this.ts.mqtt.createACK();
     }, DEFAULT_MQTT_TIMEOUT);
+
+    // TEST
+    setTimeout(() => {
+      this.responsedJump();
+    }, 3000);
   }
 
   /**
@@ -249,6 +270,88 @@ export class TaskComponent implements OnInit {
       }
     );
   }
+
+  // region 拒绝任务
+
+  /**
+   * 拒绝任务表单对象
+   */
+  public refuseForm: FormGroup;
+
+  /**
+   * 拒绝表单弹窗
+   */
+  refuseFormBox: any;
+
+  /**
+   * 打开拒绝表单弹窗
+   * @param content
+   */
+  openRefuseModal(content) {
+    this.refuseFormBox = this.modal.open({
+      title: '请输入您拒绝的理由',
+      content: content,
+      okText: '确定',
+      cancelText: '取消',
+      footer: false,
+      maskClosable: false
+    });
+  }
+
+  /**
+   * 关闭拒绝表单弹窗
+   */
+  closeRefuseModal() {
+    this.refuseFormBox.destroy();
+  }
+
+  /**
+   * 提交拒绝理由
+   * @param {string} refusedData
+   */
+  doRefuse(refusedData?: any) {
+    // 获取数据
+    const data = refusedData ? refusedData : this.refuseForm.getRawValue();
+    // 发送数据
+    this.http.post(this.cs.getUrl(environment.REQ_URLS.task.updateTaskState), {
+      taskId: this.ts.current.taskId,
+      isInvalid: environment.DICTIONARY.task.isInvalid.INVALID,
+      taskState: environment.DICTIONARY.task.state.COMPLETED,
+      remark: data.refuseReason
+    }).subscribe(
+      (res: any) => {
+        if (res.code === environment.SERVICE_RES_CODES.ok) {
+
+          // 如果是传参跳转, 则不向android端发送消息
+          if (refusedData === undefined) {
+            // 给android端跳转首页
+            this.ts.push({
+              module: MQTT_MODULES.web.common,
+              action: MQTT_COMMANDS.instru,
+              data: {
+                command: 'missionFail',
+              }
+            });
+
+            // 关闭拒绝理由弹窗
+            this.closeRefuseModal();
+          }
+
+          // NOTE 清除当前任务信息 清除图片列表, 视频列表, 直播地址, 重置按钮状态等
+          this.ts.cleanTask();
+        } else {
+          this.msg.warning('拒绝失败! err: ' + res.msg);
+        }
+      }
+    );
+  }
+
+  // 封装
+  get refuseReason() {
+    return this.refuseForm.controls['refuseReason'];
+  }
+
+  // endregion
 
   // region 其他提供给页面方法
 

@@ -34,11 +34,97 @@
   </tbody>
 </nz-table>
 
-<app-home-index *ngIf="ts.step === steps(1)"></app-home-index>
-
-
+<!-- 第一步: 发送短信 -->
+<app-task-sendmessage *ngIf="ts.step === steps(1)"></app-task-sendmessage>
 
 <!-- 全局loading -->
 <div *ngIf="ts.flags.mask.loading" id="loadingMask">
   <nz-spin [nzSize]="'large'" class="d-inline-block mr-sm"></nz-spin>
 </div>
+
+<!-- 侧边工具栏 -->
+<div class="quick-menu" [class.show]="ts.flags.utils.show && ts.step !== steps(0)">
+  <div class="quick-menu-inner">
+    <div class="settings-ctrl" (click)="ts.flags.utils.show = !ts.flags.utils.show;">
+      <i class="anticon anticon-tool"></i>
+    </div>
+    <div class="settings-ctrl countingdown-box" [hidden]="!ts.flags.utils.showCountingDown">
+      {{ts.utils.countDown}}
+    </div>
+    <button nz-button [nzType]="'success'" style="width: 160px; margin: 5px;"
+            (click)="ts.askForLiveStreamURL(liveStreamViewer);"
+            [nzLoading]="ts.flags.utils.liveStreamBtnLoading || ts.flags.utils.cameraInUsingLoading">直播</button>
+    <button nz-button [nzType]="'danger'" style="width: 160px; margin: 5px;"
+            (click)="openRefuseModal(refuseFormBox);"
+            [nzLoading]="ts.flags.loading">拒绝</button>
+    <nz-tabset id="inquiriesTabset">
+      <!-- 问题列表 -->
+      <nz-tab>
+        <ng-template #nzTabHeading>问题列表</ng-template>
+        <div class="list-group list-group-flush tab-body">
+          <a *ngFor="let q of ts.utils.questionList" class="list-group-item">{{q['questionContent']}}</a>
+        </div>
+      </nz-tab>
+      <!-- 抓拍图片 -->
+      <nz-tab>
+        <ng-template #nzTabHeading>抓拍图片</ng-template>
+        <button nz-button [nzType]="'primary'" style="width: 340px; height: 35px; margin: -10px 5px 5px 5px;" (click)="ts.capturePhoto();"
+                [nzLoading]="ts.flags.utils.photoBtnLoading || ts.flags.utils.cameraInUsingLoading">抓拍</button>
+        <div class="list-group list-group-flush tab-body">
+          <a *ngFor="let p of cd?.utils.photoList" class="list-group-item">
+            <img class="list-img" src="{{p}}" (click)="ts.showPhoto($event);"/>
+          </a>
+        </div>
+      </nz-tab>
+      <!-- 抓拍视频 -->
+      <nz-tab>
+        <ng-template #nzTabHeading>抓拍视频</ng-template>
+        <button nz-button [nzType]="'primary'" style="width: 340px; height: 35px; margin: -10px 5px 5px 5px;" (click)="ts.captureVideo();"
+                [nzLoading]="ts.flags.utils.videoBtnLoading || ts.flags.utils.cameraInUsingLoading">抓拍</button>
+        <div class="list-group list-group-flush tab-body">
+          <a *ngFor="let v of cd?.utils.videoList" class="list-group-item">
+            <video class="list-img" src="{{v}}" (click)="ts.showVideo($event);"></video>
+          </a>
+        </div>
+      </nz-tab>
+    </nz-tabset>
+  </div>
+</div>
+
+<!-- 拒绝任务modal -->
+<ng-template #refuseFormBox>
+  <form nz-form [formGroup]="refuseForm">
+
+    <div nz-form-item nz-row class="mb-sm">
+      <div nz-form-label nz-col [nzSpan]="8"><label>理由</label></div>
+      <div nz-form-control nz-col [nzSpan]="12" [nzValidateStatus]="refuseReason" nzHasFeedback>
+        <nz-input formControlName="refuseReason" name="refuseReason" [nzPlaceHolder]="'请输入您拒绝的理由'"></nz-input>
+        <ng-container *ngIf="refuseReason.dirty || refuseReason.touched">
+          <p nz-form-explain *ngIf="refuseReason.errors?.required">请输入您拒绝的理由</p>
+        </ng-container>
+      </div>
+    </div>
+
+    <div nz-form-item nz-row class="mb-sm" style="text-align: center;">
+      <button nz-button (click)="closeRefuseModal();">取消</button>
+      <button nz-button [nzType]="'primary'" (click)="doRefuse();" [disabled]="refuseForm.invalid">确定拒绝</button>
+    </div>
+  </form>
+</ng-template>
+
+<!-- 图片查看器 -->
+<ng-template #photoViewer>
+  <img [src]="ts.data.photoViewer.url" style="width: 100%"/>
+</ng-template>
+
+<!-- 视频查看器 -->
+<ng-template #videoViewer>
+  <video [src]="ts.data.videoViewer.url" style="width: 100%" autoplay controls ></video>
+</ng-template>
+
+<!-- 直播播放器 -->
+<ng-template #liveStreamViewer>
+  <iframe id="liveStreamViewerIframe"
+          style="width: 100%; border: 0px; min-height: 500px;" [src]="ts.data.ls.url"></iframe>
+</ng-template>
+

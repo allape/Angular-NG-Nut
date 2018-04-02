@@ -4,6 +4,7 @@ import {environment} from '@env/environment';
 import {CommonService} from './common.service';
 import {NzMessageService, NzModalService, NzNotificationService} from 'ng-zorro-antd';
 import {MqttServiceOptions} from 'ngx-mqtt/src/mqtt.model';
+import {HttpService} from './http.service';
 
 /**
  * 步骤标识符
@@ -26,7 +27,35 @@ export const STEP_FLAGS = [
  * @type {{}}
  */
 export const MQTT_COMMANDS = {
-  instru: 'instru',
+  instru:         'instru',
+  step:           'step',
+  sendData:       'sendData'
+};
+
+/**
+ * 消息队列模块字典
+ * @type {{}}
+ */
+export const MQTT_MODULES = {
+  // 来自服务器
+  server: {
+    // 主要用的
+    main: 'S01'
+  },
+  // 来自web端
+  web: {
+    // 公共模块通信
+    common: 'W00'
+  },
+  // 来自Android终端
+  app: {
+    // 任务列表 跳转至 发送验证码界面
+    A04_A05:      'A04-A05',
+    // 发送验证码界面
+    A05:          'A05',
+    // 发送验证码界面 跳转至 试算
+    A05_A06:      'A05-A06'
+  }
 };
 
 /**
@@ -48,7 +77,7 @@ export class TaskService {
    * 当前处理的任务; 必须包含taskId, deviceNo, clientId(p2p)
    * @type {{}}
    */
-  public current = {
+  public current: any = {
     // 必要内容
     // 任务id
     taskId:                 undefined,
@@ -64,10 +93,8 @@ export class TaskService {
     // 门店地址
     strAddr:                undefined,
     // 标记的flag
-    // 流程是否全部走完; 用于标记是否直接跳转至最后一页
-    fullyProcessed:         false,
     // 当前处理任务的状态
-    step:                   STEP_FLAGS[0],
+    taskStep:                   STEP_FLAGS[0],
   };
 
   /**
@@ -81,6 +108,9 @@ export class TaskService {
    * @type {{}}
    */
   public flags = {
+    // 全局loading
+    loading:                    false,
+    // 消息队列标识符
     mqtt: {
       // 等待Android终端相应时的loading
       waitResFromAndroidLoading:  false,
@@ -89,12 +119,27 @@ export class TaskService {
     },
     // 侧边工具栏
     utils: {
+      // 侧边栏显示否
+      show:                     false,
+      // 是否显示倒计时
+      showCountingDown:         false,
       // 终端摄像头正在使用中
       cameraInUsingLoading:     false,
+      // 直播loading
       liveStreamBtnLoading:     false,
+      // 抓拍图片loading
+      photoBtnLoading:          false,
+      // 抓拍视频loading
+      videoBtnLoading:          false,
     },
+    // 遮罩
     mask: {
       loading:                  false
+    },
+    // 任务
+    task: {
+      // 流程是否全部走完; 用于标记是否直接跳转至最后一页
+      fullyProcessed:         false,
     }
   };
 
@@ -103,9 +148,44 @@ export class TaskService {
    * @type {{}}
    */
   public utils = {
-    livingStreamModal:  undefined,
+    // 图片列表
     photoList:          [],
-    videoList:          []
+    // 视频列表
+    videoList:          [],
+    // 问题列表
+    questionList:       [],
+    // 倒计时
+    countDown:          0
+  };
+
+  /**
+   * 其他数据内容
+   * @type {{}}
+   */
+  public data = {
+    // 图片查看器
+    photoViewer: {
+      // 图片查看器modal
+      modal:              undefined,
+      // 图片地址
+      url:                '',
+    },
+    // 视频查看器
+    videoViewer: {
+      // 视频查看器modal
+      modal:              undefined,
+      // 视频地址
+      url:                '',
+    },
+    // 直播 living stream
+    ls: {
+      // 直播查看器modal
+      modal:              undefined,
+      // 直播播放地址
+      url:                '',
+      // 直播推送点
+      push2:                '',
+    }
   };
 
   /**
@@ -124,6 +204,7 @@ export class TaskService {
     private msg:            NzMessageService,
     private ntf:            NzNotificationService,
     private modal:          NzModalService,
+    public  http:           HttpService,
   ) {
     // 初始化mqtt
     // this.initMqtt();
@@ -137,7 +218,7 @@ export class TaskService {
    * @param {string} userId   当前用户id, 用于初始化mqtt使用
    */
   public initMqtt(userId: string) {
-    const options = environment.MQTT_OPTIONS;
+    const options: any = environment.MQTT_OPTIONS;
     options.clientId = environment.MQTT_OPTIONS.groupId + '@@@' + userId;
     // 创建mqtt连接
     this.mqtt.init(options);
@@ -257,11 +338,11 @@ export class TaskService {
                 this.modal.open({
                   title: '直播',
                   footer: false,
-                  content: this.utils.livingStreamModal,
+                  content: this.data.ls.modal,
                   wrapClassName: 'modal-lg',
                   onCancel: () => {
                     this.push({
-                      module: 'W00',
+                      module: MQTT_MODULES.web.common,
                       action: MQTT_COMMANDS.instru,
                       data: {
                         command: 'stopLivingStream'
@@ -326,6 +407,42 @@ export class TaskService {
     return environment.MQTT_OPTIONS.topic + '/p2p/' + environment.MQTT_OPTIONS.groupId + '@@@' + deviceNo + '_app_rec';
   }
 
+  /**
+   * 推送跳转命令
+   * @param {string} module
+   */
+  public pushStepCommand(module: string) {
+    // 设置ack
+    this.msgQueue.ack = this.mqtt.createACK();
+    // 发送命令
+    this.push(
+      {
+        module: module,
+        action: MQTT_COMMANDS.step,
+        data: {
+          ack: this.msgQueue.ack,
+        }
+      }
+    );
+  }
+
+  /**
+   * 检查收到的跳转确认是否有效
+   * @param res 收到的消息
+   */
+  public checkStepCallback(res): Boolean {
+    if (res['action'] === 'msgCallback' &&
+      // 检查内容
+      res['data'] !== undefined && res['data'] !== null &&
+      // 匹配ack
+      res['data']['ack'] === this.msgQueue.ack) {
+      return true;
+    } else {
+      this.msg.warning('解析客户终端数据失败! err: ' + res['msg']);
+    }
+    return false;
+  }
+
   // endregion
 
   // region 开始任务的初始化内容
@@ -366,6 +483,8 @@ export class TaskService {
     this.flags.mqtt.waitResFromAndroidLoading       = false;
     this.flags.utils.cameraInUsingLoading           = false;
     this.flags.utils.liveStreamBtnLoading           = false;
+    // 重置步骤至0
+    this.step = STEP_FLAGS[0];
   }
 
   // endregion 开始任务的初始化内容
@@ -381,5 +500,145 @@ export class TaskService {
   }*/
 
   // endregion 异步获取公共依赖服务
+
+  // region 展示图片, 视频悬浮窗
+
+  /**
+   * 播放视频
+   * @param e
+   */
+  public showVideo(e) {
+    this.data.videoViewer.url = e.target.src;
+    this.modal.open({
+      title: '播放视频',
+      footer: false,
+      content: this.data.videoViewer.modal,
+      wrapClassName: 'modal-lg',
+      onCancel: () => {
+        this.data.videoViewer.url = '';
+      },
+      style: {
+        top: '20px'
+      }
+    });
+  }
+
+  /**
+   * 显示一张图片
+   * @param e
+   */
+  public showPhoto(e) {
+    this.data.photoViewer.url = e.target.src;
+    this.modal.open({
+      title: '查看图片',
+      footer: false,
+      content: this.data.photoViewer.modal,
+      wrapClassName: 'modal-lg',
+      onCancel: () => {
+        this.data.photoViewer.url = '';
+      },
+      style: {
+        top: '20px'
+      }
+    });
+  }
+
+  // endregion
+
+  // region 侧边栏
+
+  /**
+   * 抓拍图片
+   */
+  public capturePhoto() {
+    // 发送指令
+    this.push({
+      module: MQTT_MODULES.web.common,
+      action: MQTT_COMMANDS.instru,
+      data: {
+        command: 'capturePhoto',
+      }
+    });
+    // 禁用btn
+    this.flags.utils.photoBtnLoading = true;
+    this.flags.utils.cameraInUsingLoading = true;
+
+    // 若干时间后释放
+    setTimeout(() => {
+      this.flags.utils.photoBtnLoading = false;
+    }, 10000);
+  }
+
+  /**
+   * 抓拍视频
+   */
+  public captureVideo() {
+    // 发送指令
+    this.push({
+      module: MQTT_MODULES.web.common,
+      action: MQTT_COMMANDS.instru,
+      data: {
+        command: 'captureVideo',
+      }
+    });
+    // 禁用btn
+    this.flags.utils.videoBtnLoading = true;
+    this.flags.utils.cameraInUsingLoading = true;
+
+    // 若干时间后释放
+    setTimeout(() => {
+      this.flags.utils.videoBtnLoading = false;
+    }, 60000);
+  }
+
+  /**
+   * 请求直播
+   */
+  public askForLiveStreamURL() {
+    // 发送指令
+    this.push({
+      module: MQTT_MODULES.web.common,
+      action: MQTT_COMMANDS.instru,
+      data: {
+        command: 'startLivingStream',
+        push2: this.data.ls.push2
+      }
+    });
+
+    // 禁用btn
+    this.flags.utils.liveStreamBtnLoading = true;
+    this.flags.utils.cameraInUsingLoading = true;
+  }
+
+  /**
+   * 加载问题列表
+   * @param {string} type
+   */
+  public loadInquiryList(type: string) {
+    this.http.get(
+      this.cs.getUrl(
+        environment.REQ_URLS.question.question,
+        {type: type}
+      )
+    ).subscribe(
+      (res: any) => {
+        if (res.code === environment.SERVICE_RES_CODES.ok) {
+          this.utils.questionList = res.data;
+        } else {
+          this.msg.warning('获取问题列表失败! err: ' + res.msg);
+        }
+      }
+    );
+  }
+
+  /**
+   * 清空倒计时
+   */
+  public cleanCountdown() {
+    this.utils.countDown = 0;
+    this.flags.utils.showCountingDown = false;
+  }
+
+  // endregion
 
 }

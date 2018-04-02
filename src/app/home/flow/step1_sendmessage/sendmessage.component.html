@@ -1,0 +1,68 @@
+<div class="content__title">
+    <h1>短信验证
+        <small>请提示用户接收短信验证码</small>
+    </h1>
+</div>
+
+<nz-card nzTitle="验证短信">
+    <form nz-form [formGroup]="validateForm">
+        <div nz-form-item nz-row>
+            <div nz-form-label nz-col [nzSm]="6" [nzXs]="24">
+                <label nz-form-item-required>手机号(客户)</label>
+            </div>
+            <div nz-form-control nz-col [nzSm]="14" [nzXs]="24" nzHasFeedback
+                 [nzValidateStatus]="getFormControl('phoneNum')">
+                <nz-input formControlName="phoneNum" nzSize="large" [nzId]="'phoneNum'"></nz-input>
+                <ng-container *ngIf="getFormControl('phoneNum').dirty || getFormControl('phoneNum').touched">
+                    <p nz-form-explain *ngIf="getFormControl('phoneNum').hasError('required')">请输入手机号</p>
+                    <p nz-form-explain *ngIf="getFormControl('phoneNum').hasError('pattern')">手机号格式不正确</p>
+                </ng-container>
+            </div>
+        </div>
+        <div nz-form-item nz-row>
+            <div nz-form-label nz-col [nzSm]="6" [nzXs]="24">
+                <label nz-form-item-required>短信验证码</label>
+            </div>
+            <div nz-form-control nz-col [nzSm]="14" [nzXs]="24">
+                <div nz-row [nzGutter]="8">
+                    <div nz-col [nzSpan]="12">
+                        <nz-input [nzSize]="'large'" formControlName="SMSCode" [nzId]="'SMSCode'"></nz-input>
+                    </div>
+                    <div nz-col [nzSpan]="12">
+                        <button
+                                nz-button
+                                [nzSize]="'large'"
+                                [nzType]="'primary'"
+                                [disabled]="verifyCode.disable || getFormControl('phoneNum').errors?.required || getFormControl('phoneNum').errors?.pattern"
+                                (click)="getCode($event)"
+                                [nzLoading]="ts.flags.loading">
+                            {{verifyCode.verifyCodeTips}}
+                        </button>
+                    </div>
+                </div>
+                <ng-container *ngIf="getFormControl('SMSCode').dirty || getFormControl('SMSCode').touched">
+                    <p nz-form-explain *ngIf="getFormControl('SMSCode').hasError('required')">验证码不能为空</p>
+                    <p nz-form-explain *ngIf="getFormControl('SMSCode').hasError('checked')">验证码错误</p>
+                    <p nz-form-explain *ngIf="getFormControl('SMSCode').hasError('minlength')">验证码不得少于6位</p>
+                    <p nz-form-explain *ngIf="getFormControl('SMSCode').hasError('maxlength')">验证码不能大于6位</p>
+                </ng-container>
+            </div>
+        </div>
+
+        <div nz-form-item nz-row style="margin-bottom:8px;">
+            <div nz-form-control nz-col [nzSpan]="14" [nzOffset]="6">
+                <button nz-button [nzSize]="'large'" [nzType]="'primary'" [disabled]="!validateForm.valid" (click)="validateSmsCode()" [nzLoading]="ts.flags.loading">下一步</button>
+            </div>
+        </div>
+    </form>
+</nz-card>
+<nz-card>
+    <div class="mt-lg px-lg text-grey-dark">
+        <h3 class="h3 my-md">操作提示:</h3>
+        <h4 class="h4 mb-sm">手机号</h4>
+        <p class="mb-sm">请问询（客户的）手机号填写在左侧输入框</p>
+        <h4 class="h4 mb-sm">短信验证码</h4>
+        <p>手机号输入完毕验证无误后，请点击发送短信验证码按钮</p>
+        <p>验证码有效期为60秒(s),60s可重新发送</p>
+    </div>
+</nz-card>

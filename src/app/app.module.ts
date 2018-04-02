@@ -76,6 +76,7 @@ import {
 import {HttpService} from 'app/home/services/http.service';
 import {SettingsService} from './home/services/settings.service';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {ReactiveFormsModule} from '@angular/forms';
 
 export const ZORROMODULES = [
   // LoggerModule,
@@ -148,6 +149,8 @@ export const ZORROMODULES = [
     HttpClientModule,
     // zorro模块
     ...ZORROMODULES,
+    // 表单模块
+    ReactiveFormsModule,
   ],
   exports: [RouterModule],
   providers: [
