@@ -1,7 +1,14 @@
 import { Component } from '@angular/core';
+import {CommonService} from './base/services/common.service';
 
 @Component({
   selector: 'app-root',
-  templateUrl: '<router-outlet></router-outlet>'
+  template: '<router-outlet></router-outlet>'
 })
-export class AppComponent { }
+export class AppComponent {
+
+  constructor(
+    public  cs:           CommonService
+  ) { }
+
+}
