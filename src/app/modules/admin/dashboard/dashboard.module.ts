@@ -4,15 +4,22 @@ import {DashboardRoutingModule} from './dashboard-routing.module';
 import { HomeComponent } from './home/home.component';
 import {ADMIN_ROUTES, AdminService} from '../admin.service';
 import {CommonService} from '../../../base/services/common.service';
-import {map} from 'rxjs/operator/map';
+import { DashboardComponent } from './dashboard.component';
+import {NzLayoutModule, NzMenuModule} from 'ng-zorro-antd';
 
 @NgModule({
   imports: [
+    // 公共
     CommonModule,
-    DashboardRoutingModule
+    // 路由
+    DashboardRoutingModule,
+    // zorro
+    NzLayoutModule,
+    NzMenuModule
   ],
   declarations: [
-    HomeComponent
+    HomeComponent,
+    DashboardComponent
   ]
 })
 export class DashboardModule {
