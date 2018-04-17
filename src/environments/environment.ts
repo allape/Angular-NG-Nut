@@ -23,7 +23,7 @@ export const environment = {
   // 网络配置
   http: {
     // 服务器
-    host: 'http://192.168.2.49:8080',
+    host: 'http://47.96.143.154:9090',
     // 请求列表
     urls: {
       // 登录授权
