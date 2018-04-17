@@ -5,9 +5,10 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {environment} from '../../../../../environments/environment';
 import {HttpService} from '../../../../base/services/http.service';
 import {NzMessageService} from 'ng-zorro-antd';
+import {ADMIN_ROUTES, AdminService} from '../../admin.service';
 
 @Component({
-  selector: 'app-login',
+  selector: 'app-admin-passport-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
@@ -17,7 +18,7 @@ export class LoginComponent implements OnInit, OnDestroy {
    * 当前组件在自定义服务中注册器中的名称
    * @type {string}
    */
-  private COMPONENT_NAME = 'AdminLoginComponent';
+  private COMPONENT_NAME = 'AdminPassportLoginComponent';
 
   /**
    * 登录表单
@@ -36,6 +37,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private fb:         FormBuilder,
     public  http:       HttpService,
     private msg:        NzMessageService,
+    private as:         AdminService
   ) {
     // 设置标题
     this.title.setTitle('管理员登录');
@@ -67,7 +69,14 @@ export class LoginComponent implements OnInit, OnDestroy {
       password: this.loginForm.controls.password.value,
     }).subscribe((res: any) => {
       if (res.code === environment.http.rescodes.ok) {
-
+        this.as.loginUser(res.data.token).subscribe(
+          () => {
+            this.cs.goto(ADMIN_ROUTES.dashboard);
+          },
+          (e) => {
+            this.msg.warning('登录失败! err: ' + e.msg);
+          }
+        );
       } else {
         this.msg.warning('登录失败, ' + res.msg);
       }

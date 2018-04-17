@@ -23,13 +23,18 @@ export const environment = {
   // 网络配置
   http: {
     // 服务器
-    host: 'http://47.96.143.154:9090',
+    host: 'http://192.168.2.49:8080',
     // 请求列表
     urls: {
       // 登录授权
       auth: {
         // 登录
-        token:          '/auth/token'
+        token:          '/auth/token',
+      },
+      // 管理员
+      user: {
+        // 获取当前管理员信息
+        current:        '/api/sys/permission/user/current'
       }
     },
     // 服务器响应内容

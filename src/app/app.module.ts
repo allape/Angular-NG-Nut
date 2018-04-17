@@ -66,6 +66,7 @@ import {AdminModule} from './modules/admin/admin.module';
 import {AppRoutingModule} from './app-routing.module';
 import {CommonService} from './base/services/common.service';
 import {InterceptorService} from './base/services/interceptor.service';
+import {AdminInterceptorService} from './modules/admin/admin-interceptor.service';
 
 // region zorro modules
 export const ZORRO_MODULES = [
@@ -145,6 +146,7 @@ export const ZORRO_MODULES = [
     HttpService,
     // 网络拦截器
     {provide: HTTP_INTERCEPTORS, useClass: InterceptorService, multi: true},
+    {provide: HTTP_INTERCEPTORS, useClass: AdminInterceptorService, multi: true},
     // 标题服务
     Title,
     // 公共服务,
