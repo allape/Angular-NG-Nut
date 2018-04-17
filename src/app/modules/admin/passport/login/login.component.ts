@@ -21,6 +21,12 @@ export class LoginComponent implements OnInit, OnDestroy {
   private COMPONENT_NAME = 'AdminPassportLoginComponent';
 
   /**
+   * 存放在localStorage的用户名的key
+   * @type {string}
+   */
+  private USERNAME_REMEMBERED_KEY = 'as_ng_nut_admin_passport_login_USERNAME_REMEMBER_KEY';
+
+  /**
    * 登录表单
    */
   public loginForm: FormGroup;
@@ -52,7 +58,21 @@ export class LoginComponent implements OnInit, OnDestroy {
       username:   [null, [Validators.required]],
       password:   [null, [Validators.required]],
       verifycode: [null, [Validators.required]],
+      rememberme: [null, [Validators.required]],
     });
+
+    // 读取localStorage, 设置用户名
+    const un = window.localStorage.getItem(this.USERNAME_REMEMBERED_KEY);
+    if (un != null) {
+      this.loginForm.patchValue({
+        username:     un,
+        rememberme:   true
+      });
+    } else {
+      this.loginForm.patchValue({
+        rememberme:   false
+      });
+    }
   }
 
   ngOnDestroy(): void {
@@ -64,9 +84,19 @@ export class LoginComponent implements OnInit, OnDestroy {
    * 请求登录
    */
   public login() {
+    // 获取表单数据
+    const data = this.loginForm.getRawValue();
+
+    // 如果"记住我"选中了的, 则将用户名放入localStorage
+    if (data.rememberme === true) {
+      window.localStorage.setItem(this.USERNAME_REMEMBERED_KEY, data.username);
+    } else {
+      window.localStorage.removeItem(this.USERNAME_REMEMBERED_KEY);
+    }
+
     this.http.post(environment.http.urls.auth.token, {
-      username: this.loginForm.controls.username.value,
-      password: this.loginForm.controls.password.value,
+      username: data.username,
+      password: data.password,
     }).subscribe((res: any) => {
       if (res.code === environment.http.rescodes.ok) {
         this.as.loginUser(res.data.token).subscribe(

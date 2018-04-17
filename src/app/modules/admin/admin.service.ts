@@ -30,7 +30,7 @@ export class AdminService {
    * 管理员登录token在localStorage中的key
    * @type {string}
    */
-  private USER_DATA_LOCAL_STORAGE_KEY = 'as_ng_nut_admin_USER_DATA_LOCAL_STORAGE_KEY';
+  private USER_DATA_LOCAL_STORAGE_KEY = 'as_ng_nut_admin_service_USER_DATA_LOCAL_STORAGE_KEY';
 
   /**
    * 当前登录的管理员
@@ -76,7 +76,7 @@ export class AdminService {
       }
     }
 
-    // 设置http请求头
+    // 设置http请求头 TODO 授权字段
     this.cs.setData(COMMON_DATA_HEADERS_KEY, {Authorization: 'Bearer Web ' + token});
 
     // 返回订阅对象
@@ -106,9 +106,16 @@ export class AdminService {
    * 登出当前管理员
    */
   public logoutUser() {
+    // TODO 登出接口需指定用户名
+    this.http.delete(HttpService.buildUrl(environment.http.urls.auth.loginOut, this.getUser()['userName'])).subscribe(
+      () => {},
+    );
+    // 设置全局对象为null
     this.user = null;
+    // 清除localStorage
     window.localStorage.removeItem(this.USER_DATA_LOCAL_STORAGE_KEY);
-    this.gotoLogin();
+    // 跳转至登陆界面
+    return this.gotoLogin();
   }
 
   /**
@@ -119,7 +126,7 @@ export class AdminService {
    */
   public getUser(nonCheck: boolean = false, notLogined?: Function) {
     if (this.user === null && !nonCheck) {
-      if (notLogined === null) {
+      if (!Utils.referencable(notLogined)) {
         this.gotoLogin();
       } else {
         if (notLogined.call(this)) {

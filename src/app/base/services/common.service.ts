@@ -26,7 +26,11 @@ export class CommonService {
   constructor(
     private injector: Injector,
   ) {
+    // 初始化日志输出级别
     CommonService.initLogger(environment.logger.level);
+
+    // TEST 输出当前实例, 用于在调试台调用
+    console.log(this);
   }
 
   // region 日志
@@ -47,7 +51,7 @@ export class CommonService {
     level = level ? level.toLocaleLowerCase() : '';
     const levelStage = LEVELS.includes(level) ? LEVELS.indexOf(level) : LEVELS.length;
 
-    // 设置不输出的登录对应的console方法为空方法
+    // 设置不输出的等级对应的console方法为空方法
     for (let i = LEVELS.length; i > levelStage; i--) {
       console[LEVELS[i]] = () => {};
     }

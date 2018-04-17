@@ -1,8 +1,18 @@
+/* 抄的样式 */
+
 :host ::ng-deep .logo {
   height: 32px;
   background: #333;
   border-radius: 6px;
   margin: 16px;
+}
+
+:host ::ng-deep .nav-text {
+  font-size: 16px;
+}
+
+:host ::ng-deep .ant-menu-inline .ant-menu-item {
+  font-size: 14px;
 }
 
 :host ::ng-deep .ant-layout-sider-collapsed .nav-text {
@@ -28,4 +38,46 @@
 
 :host ::ng-deep .trigger:hover {
   color: #108ee9;
+}
+
+/* 自定义样式 */
+
+.dropdown-item-text {
+  width: 100%;
+  display: inline-block;
+  text-align: center;
+}
+
+nz-layout#dashboard {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+}
+
+nz-layout#dashboard > .right-content > nz-header {
+  background: #fff;
+  padding: 0;
+}
+
+nz-layout#dashboard > .right-content > nz-header .header-item {
+  text-align: center;
+  cursor: pointer;
+  transition: 0.3s;
+  font-size: 20px;
+}
+
+nz-layout#dashboard > .right-content > nz-header .header-item > nz-dropdown {
+  width: 100%;
+}
+
+nz-layout#dashboard > .right-content > nz-header .header-item:hover {
+  background-color: #f5f5f5;
+}
+
+nz-layout#dashboard > .right-content > nz-content {
+  margin: 0 16px;
+}
+
+nz-layout#dashboard > .right-content > nz-footer {
+  text-align: center;
 }

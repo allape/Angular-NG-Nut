@@ -8,6 +8,7 @@ import {NzMessageService} from 'ng-zorro-antd';
 import {CommonService} from '../../base/services/common.service';
 import {ADMIN_ROUTES, COMMON_DATA_HEADERS_KEY} from './admin.service';
 import {Utils} from '../../base/utils/utils';
+import {environment} from '../../../environments/environment';
 
 @Injectable()
 export class AdminInterceptorService implements HttpInterceptor {
@@ -45,9 +46,23 @@ export class AdminInterceptorService implements HttpInterceptor {
     return next.handle(copiedReq).pipe(
       // 处理完成的时候
       mergeMap((event: any) => {
+        // 检查基础参数
         if (event instanceof HttpResponse && event.status !== 200) {
           return ErrorObservable.create(event);
         }
+
+        // 如果返回的code为未授权则跳转至登陆页面
+        const body = Utils.referencable(event) && Utils.referencable(event.body) ? event.body : null;
+        if (body !== null) {
+          switch (body.code) {
+            case environment.http.rescodes.ok: break;
+            case environment.http.rescodes.notAuthed:
+              this.msg.warning('请先登陆! err: ' + body.msg);
+              this.cs.goto(ADMIN_ROUTES.login);
+              break;
+          }
+        }
+
         return Observable.create(observer => observer.next(event));
       }),
       // 捕捉错误

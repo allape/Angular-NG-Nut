@@ -30,6 +30,8 @@ export const environment = {
       auth: {
         // 登录
         token:          '/auth/token',
+        // 登出
+        loginOut:       '/auth/loginOut/'
       },
       // 管理员
       user: {
@@ -40,7 +42,9 @@ export const environment = {
     // 服务器响应内容
     rescodes: {
       // 完成
-      ok:               200001
+      ok:               200001,
+      // 未授权登陆
+      notAuthed:        300001,
     }
   },
 

@@ -1,8 +1,11 @@
-<nz-layout>
+<nz-layout id="dashboard">
 
+  <!-- 左侧菜单 -->
   <nz-sider nzCollapsible [(nzCollapsed)]="isCollapsed" [nzTrigger]="null">
+    <!-- logo -->
     <div class="logo"></div>
-    <ul nz-menu [nzTheme]="'dark'" [nzMode]="isCollapsed?'vertical':'inline'">
+    <!-- 菜单 -->
+    <ul nz-menu [nzTheme]="'dark'" [nzMode]="isCollapsed?'vertical':'inline'" class="menu-box">
       <li nz-submenu>
         <span title><i class="anticon anticon-user"></i><span class="nav-text">User</span></span>
         <ul>
@@ -22,18 +25,39 @@
     </ul>
   </nz-sider>
 
-  <nz-layout>
-
-    <nz-header style="background: #fff; padding:0;">
-      <i class="anticon trigger" [class.anticon-menu-fold]="!isCollapsed" [class.anticon-menu-unfold]="isCollapsed" (click)="isCollapsed=!isCollapsed"></i>
+  <!-- 右侧内容 -->
+  <nz-layout class="right-content">
+    <!-- 头部 -->
+    <nz-header>
+      <div nz-row>
+        <div nz-col [nzSpan]="12">
+          <i class="anticon trigger"
+             [class.anticon-menu-fold]="!isCollapsed"
+             [class.anticon-menu-unfold]="isCollapsed"
+             (click)="isCollapsed=!isCollapsed"></i>
+        </div>
+        <div nz-col [nzSpan]="10"></div>
+        <div nz-col [nzSpan]="1" class="header-item">
+          <i class="anticon anticon-setting"></i>
+        </div>
+        <div nz-col [nzSpan]="1" class="header-item">
+          <nz-dropdown [nzPlacement]="'bottomRight'" nz-dropdown>
+            <i class="anticon anticon-user"></i>
+            <ul nz-menu>
+              <li nz-menu-item (click)="logout();">
+                <i class="anticon anticon-poweroff"></i>
+                <span class="dropdown-item-text">登出</span>
+              </li>
+            </ul>
+          </nz-dropdown>
+        </div>
+      </div>
     </nz-header>
-
-    <nz-content style="margin:0 16px;">
+    <!-- 内容 -->
+    <nz-content>
       <router-outlet></router-outlet>
     </nz-content>
-
-    <nz-footer style="text-align: center;">Ant Design ©2017 Implement By Angular</nz-footer>
-
+    <!-- 页脚-->
+    <nz-footer>Ng-Nut -- Ant Design ©2017 Implement By Angular</nz-footer>
   </nz-layout>
-
 </nz-layout>

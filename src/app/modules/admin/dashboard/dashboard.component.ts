@@ -1,6 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Title} from '@angular/platform-browser';
 import {CommonService} from '../../../base/services/common.service';
+import {ADMIN_ROUTES, AdminService} from '../admin.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -8,8 +9,6 @@ import {CommonService} from '../../../base/services/common.service';
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit, OnDestroy {
-
-  // TODO 更改样式
 
   private COMPONENT_NAME = 'AdminDashboardComponent';
 
@@ -22,8 +21,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
   constructor(
     private title:            Title,
     private cs:               CommonService,
+    private as:               AdminService,
   ) {
     this.title.setTitle('管理平台');
+
+    // 获取管理员信息
+    if (this.as.getUser(true) === null) {
+      // 打开遮罩
+      this.cs.mask = true;
+      // 请求登录
+      this.as.loginUser().subscribe(
+        () => {
+          // 关闭mask
+          this.cs.mask = false;
+          this.cs.goto(ADMIN_ROUTES.dashboard);
+        },
+        () => {
+          // 关闭mask
+          this.cs.mask = false;
+          this.as.gotoLogin();
+        }
+      );
+    }
   }
 
   ngOnInit() {
@@ -32,6 +51,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.cs.unregisterComponent(this.COMPONENT_NAME);
+  }
+
+  /**
+   * 登出
+   */
+  public logout() {
+    this.as.logoutUser();
   }
 
 }
