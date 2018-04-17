@@ -23,8 +23,25 @@ export const environment = {
   // 网络配置
   http: {
     // 服务器
-    host: 'http://localhost:8080',
+    host: 'http://47.96.143.154:9090',
     // 请求列表
-    urls: { }
+    urls: {
+      // 登录授权
+      auth: {
+        // 登录
+        token:          '/auth/token'
+      }
+    },
+    // 服务器响应内容
+    rescodes: {
+      // 完成
+      ok:               200001
+    }
+  },
+
+  // html页面使用的参数
+  html: {
+    // 默认图片
+    defaultImg: 'https://ng.ant.design/assets/img/zorro.svg',
   }
 };

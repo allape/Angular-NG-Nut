@@ -3,8 +3,8 @@ import {AdminRoutingModule} from './admin-routing.module';
 
 @NgModule({
   imports: [
-    AdminRoutingModule
+    AdminRoutingModule,
   ],
-  declarations: []
+  declarations: [],
 })
 export class AdminModule { }

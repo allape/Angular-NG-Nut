@@ -59,12 +59,13 @@ import {
   NzNotificationService,
   NzMessageService, NzTransferModule, NzCardModule
 } from 'ng-zorro-antd';
-import {HttpClientModule} from '@angular/common/http';
+import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import {ReactiveFormsModule} from '@angular/forms';
 import {HttpService} from './base/services/http.service';
 import {AdminModule} from './modules/admin/admin.module';
 import {AppRoutingModule} from './app-routing.module';
 import {CommonService} from './base/services/common.service';
+import {InterceptorService} from './base/services/interceptor.service';
 
 // region zorro modules
 export const ZORRO_MODULES = [
@@ -142,6 +143,8 @@ export const ZORRO_MODULES = [
     NzNotificationService,
     // 网络服务
     HttpService,
+    // 网络拦截器
+    {provide: HTTP_INTERCEPTORS, useClass: InterceptorService, multi: true},
     // 标题服务
     Title,
     // 公共服务,
