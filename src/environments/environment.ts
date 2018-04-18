@@ -24,7 +24,7 @@ export const environment = {
   http: {
     // 服务器
     // host: 'http://47.96.143.154:9090',
-    host: 'http://192.168.2.49:9999',
+    host: 'http://192.168.2.49:8080',
     // 请求列表
     urls: {
       // 登录授权
@@ -37,7 +37,9 @@ export const environment = {
       // 管理员
       user: {
         // 获取当前管理员信息
-        current:        '/api/sys/permission/user/current'
+        current:        '/api/sys/permission/user/current',
+        // 管理员分页列表
+        search:         '/api/sys/permission/user/search'
       }
     },
     // 服务器响应内容

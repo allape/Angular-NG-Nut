@@ -36,7 +36,10 @@
              [class.anticon-menu-unfold]="isCollapsed"
              (click)="isCollapsed=!isCollapsed"></i>
         </div>
-        <div nz-col [nzSpan]="10"></div>
+        <div nz-col [nzSpan]="9"></div>
+        <div nz-col [nzSpan]="1" class="header-item" (click)="startRainbowColor();">
+          <i class="anticon anticon-heart"></i>
+        </div>
         <div nz-col [nzSpan]="1" class="header-item">
           <i class="anticon anticon-setting"></i>
         </div>

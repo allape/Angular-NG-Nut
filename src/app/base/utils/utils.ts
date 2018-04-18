@@ -38,4 +38,14 @@ export class Utils {
     return obj === null || obj === undefined ? false : true;
   }
 
+  /**
+   * 格式化参数为一个大于0的整数
+   * @param {number} pageNum      格式化的数字
+   * @param defaultValue          非法格式时的返回值
+   */
+  public static formatPageNum(pageNum: any, defaultValue: number = 1): number {
+    pageNum = pageNum * 1;
+    return isNaN(pageNum) || pageNum < 0 ? defaultValue : parseInt(pageNum, 10);
+  }
+
 }

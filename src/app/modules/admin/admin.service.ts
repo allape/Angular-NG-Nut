@@ -14,7 +14,7 @@ export const ADMIN_ROUTES = {
   // 登录界面
   login:        '/admin/passport/login',
   // 首页
-  dashboard:    '/admin/dashboard/home'
+  dashboard:    '/admin/dashboard/sys/user'
 };
 
 /**

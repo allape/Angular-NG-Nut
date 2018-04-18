@@ -57,7 +57,6 @@ export class AdminInterceptorService implements HttpInterceptor {
           switch (body.code) {
             case environment.http.rescodes.ok: break;
             case environment.http.rescodes.notAuthed:
-              this.msg.warning('请先登陆! err: ' + (body.msg ? body.msg : (body.message ? body.message : '未指定错误!')));
               this.cs.goto(ADMIN_ROUTES.login);
               break;
           }

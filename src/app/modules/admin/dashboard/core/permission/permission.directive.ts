@@ -8,7 +8,7 @@ import {Utils} from '../../../../../base/utils/utils';
 export class PermissionDirective {
 
   @Input('hasPermissions')
-  set hasPermissions(permissions: string | Array) {
+  set hasPermissions(permissions: string | Array<string>) {
     setTimeout(() => {
       // 是否授权
       let granted = false;

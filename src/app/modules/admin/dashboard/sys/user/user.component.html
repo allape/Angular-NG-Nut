@@ -1,0 +1,35 @@
+<!-- 列表 -->
+<nz-card [nzNoHovering]="true">
+  <ng-template #body>
+    <nz-table #nzTable
+              [nzAjaxData]="list"
+              [nzShowSizeChanger]="false"
+              [nzLoading]="http.loading"
+              [nzTotal]="totalPage"
+              [(nzPageIndex)]="currentPage"
+              [(nzPageSize)]="pageRowNum"
+              (nzPageIndexChange)="getList()"
+              (nzPageSizeChange)="getList()">
+      <thead nz-thead>
+        <tr>
+          <th nz-th><span>账号</span></th>
+          <th nz-th><span>姓名</span></th>
+          <th nz-th><span>操作</span></th>
+        </tr>
+      </thead>
+      <tbody nz-tbody>
+        <tr nz-tbody-tr *ngFor="let data of nzTable.data">
+          <td nz-td>{{data.userName}}</td>
+          <td nz-td>{{data.realName}}</td>
+          <td nz-td>
+            <a>编辑</a>
+            <span nz-table-divider></span>
+            <nz-popconfirm [nzTitle]="'确认删除?'" [nzOkText]="'确定'" [nzCancelText]="'取消'" (nzOnConfirm)="del(data.id);">
+              <a nz-popconfirm>删除</a>
+            </nz-popconfirm>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </ng-template>
+</nz-card>

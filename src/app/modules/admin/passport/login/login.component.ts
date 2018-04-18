@@ -97,6 +97,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.http.post(environment.http.urls.auth.token, {
       username: data.username,
       password: data.password,
+    }, {
+      notOkMsg: '登录失败',
     }).subscribe((res: any) => {
       if (res.code === environment.http.rescodes.ok) {
         this.as.loginUser(res.data.token).subscribe(
@@ -107,8 +109,6 @@ export class LoginComponent implements OnInit, OnDestroy {
             this.msg.warning('登录失败! err: ' + e.msg);
           }
         );
-      } else {
-        this.msg.warning('登录失败, ' + res.msg);
       }
     });
   }

@@ -28,6 +28,11 @@ import {CommonService} from './base/services/common.service';
         top: 45%;
         left: 50%;
       }
+
+      /* 调整NgZorro样式 */
+      :host ::ng-deep .ant-table {
+        font-size: 14px;
+      }
     `
   ]
 })

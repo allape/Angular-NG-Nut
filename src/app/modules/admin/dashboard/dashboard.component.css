@@ -75,7 +75,7 @@ nz-layout#dashboard > .right-content > nz-header .header-item:hover {
 }
 
 nz-layout#dashboard > .right-content > nz-content {
-  margin: 0 16px;
+  margin: 16px;
 }
 
 nz-layout#dashboard > .right-content > nz-footer {
