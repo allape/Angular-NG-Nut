@@ -36,6 +36,7 @@
 .login-content-rememberme {
   position: absolute;
   margin-top: 6px;
+  overflow: hidden;
 }
 
 .login-content-button {

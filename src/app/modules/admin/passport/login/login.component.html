@@ -18,9 +18,6 @@
         <!-- 输入框 -->
         <div nz-form-control nz-col [nzSpan]="14" [nzValidateStatus]="loginForm.controls.username" nzHasFeedback>
           <nz-input formControlName="username" name="username" [nzPlaceHolder]="'请输入您的账号'" [nzSize]="'large'"></nz-input>
-          <ng-container *ngIf="loginForm.controls.username.dirty || loginForm.controls.username.touched">
-            <p nz-form-explain *ngIf="loginForm.controls.username.errors?.required">请输入您的账号</p>
-          </ng-container>
         </div>
       </div>
 
@@ -31,9 +28,6 @@
         <!-- 输入框 -->
         <div nz-form-control nz-col [nzSpan]="14" [nzValidateStatus]="loginForm.controls.password" nzHasFeedback>
           <nz-input formControlName="password" name="password" [nzPlaceHolder]="'请输入您的密码'" [nzSize]="'large'" [nzType]="'password'"></nz-input>
-          <ng-container *ngIf="loginForm.controls.password.dirty || loginForm.controls.password.touched">
-            <p nz-form-explain *ngIf="loginForm.controls.password.errors?.required">请输入您的密码</p>
-          </ng-container>
         </div>
       </div>
 
@@ -44,9 +38,6 @@
         <!-- 输入框 -->
         <div nz-form-control nz-col [nzSpan]="9" [nzValidateStatus]="loginForm.controls.verifycode" nzHasFeedback>
           <nz-input formControlName="verifycode" [nzPlaceHolder]="'请输入图片验证码'" [nzSize]="'large'" [nzType]="'verifycode'"></nz-input>
-          <ng-container *ngIf="loginForm.controls.verifycode.dirty || loginForm.controls.verifycode.touched">
-            <p nz-form-explain *ngIf="loginForm.controls.verifycode.errors?.required">请输入图片验证码</p>
-          </ng-container>
         </div>
         <div nz-col [nzSpan]="1"></div>
         <div nz-col [nzSpan]="4">
@@ -61,8 +52,8 @@
                 [disabled]="loginForm.invalid" (click)="login();" [nzLoading]="http.loading"><span>登录</span></button>
         <div nz-col [nzSpan]="4">
           <nz-switch class="login-content-rememberme" formControlName="rememberme">
-            <span checked>记住账号</span>
-            <span unchecked>记住账号</span>
+            <span checked>记住我</span>
+            <span unchecked>记住我</span>
           </nz-switch>
         </div>
       </div>
