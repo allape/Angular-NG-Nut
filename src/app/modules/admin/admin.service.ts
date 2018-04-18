@@ -33,10 +33,10 @@ export class AdminService {
   private USER_DATA_LOCAL_STORAGE_KEY = 'as_ng_nut_admin_service_USER_DATA_LOCAL_STORAGE_KEY';
 
   /**
-   * 当前登录的管理员
+   * 当前登录的管理员 TODO 当前为默认用户
    * @type {null}
    */
-  public user = null;
+  public user = null; // {username: 'test', id: 'testid', token: 'testToken', permissions: ['admin:home']}; // null;
 
   constructor(
     private injector:     Injector,
@@ -88,8 +88,18 @@ export class AdminService {
             // 获取数据
             this.user = Utils.referencable(res.data) ? res.data : {};
             this.user.token = token;
+            // TODO 临时的权限
+            this.user.permissions = ['admin:home'];
+
+            // 保存在localStorage中的信息
+            const user = {
+              id:             this.user.id,
+              username:       this.user.username,
+              token:          this.user.token,
+            };
             // 放入localStorage
-            window.localStorage.setItem(this.USER_DATA_LOCAL_STORAGE_KEY, JSON.stringify(this.user));
+            window.localStorage.setItem(this.USER_DATA_LOCAL_STORAGE_KEY, JSON.stringify(user));
+
             // 触发回调
             subscriber.next(res);
           } else {
@@ -97,6 +107,9 @@ export class AdminService {
             subscriber.error(res);
             this.gotoLogin();
           }
+        },
+        (e) => {
+          subscriber.error(e);
         }
       );
     });
@@ -107,7 +120,7 @@ export class AdminService {
    */
   public logoutUser() {
     // TODO 登出接口需指定用户名
-    this.http.delete(HttpService.buildUrl(environment.http.urls.auth.loginOut, this.getUser()['userName'])).subscribe(
+    this.http.delete(HttpService.buildUrl(environment.http.urls.auth.loginOut, this.getUser()['username'])).subscribe(
       () => {},
     );
     // 设置全局对象为null

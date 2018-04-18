@@ -44,7 +44,7 @@ export class InterceptorService implements HttpInterceptor {
           case 500:
             break;
         }
-        this.msg.error('服务器错误! code: ' + res.status);
+        this.msg.error('服务器错误! code: ' + (res.status ? res.status : '未指定响应代号!'));
         return ErrorObservable.create(event);
       })
     );

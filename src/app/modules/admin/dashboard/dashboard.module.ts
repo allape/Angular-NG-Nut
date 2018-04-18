@@ -4,6 +4,7 @@ import {DashboardRoutingModule} from './dashboard-routing.module';
 import { HomeComponent } from './home/home.component';
 import { DashboardComponent } from './dashboard.component';
 import {NgZorroAntdModule} from 'ng-zorro-antd';
+import { PermissionDirective } from './core/permission/permission.directive';
 
 @NgModule({
   imports: [
@@ -16,7 +17,8 @@ import {NgZorroAntdModule} from 'ng-zorro-antd';
   ],
   declarations: [
     HomeComponent,
-    DashboardComponent
+    DashboardComponent,
+    PermissionDirective,
   ]
 })
 export class DashboardModule {

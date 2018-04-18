@@ -24,25 +24,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private as:               AdminService,
   ) {
     this.title.setTitle('管理平台');
-
-    // 获取管理员信息
-    if (this.as.getUser(true) === null) {
-      // 打开遮罩
-      this.cs.mask = true;
-      // 请求登录
-      this.as.loginUser().subscribe(
-        () => {
-          // 关闭mask
-          this.cs.mask = false;
-          this.cs.goto(ADMIN_ROUTES.dashboard);
-        },
-        () => {
-          // 关闭mask
-          this.cs.mask = false;
-          this.as.gotoLogin();
-        }
-      );
-    }
   }
 
   ngOnInit() {
