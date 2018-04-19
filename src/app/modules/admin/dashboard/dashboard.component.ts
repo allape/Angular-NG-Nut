@@ -1,12 +1,16 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Title} from '@angular/platform-browser';
 import {CommonService} from '../../../base/services/common.service';
-import {ADMIN_ROUTES, AdminService} from '../admin.service';
+import {AdminService} from '../admin.service';
+import {fadeInFromDown2Up} from '../../../app.animations';
 
 @Component({
   selector: 'app-admin-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css']
+  styleUrls: ['./dashboard.component.css'],
+  animations: [
+    fadeInFromDown2Up
+  ]
 })
 export class DashboardComponent implements OnInit, OnDestroy {
 

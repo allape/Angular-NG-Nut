@@ -21,7 +21,6 @@ import {AdminInterceptorService} from './modules/admin/admin-interceptor.service
   ],
   imports: [
     // 浏览器模块
-    BrowserModule,
     BrowserAnimationsModule,
     // 路由模块,
     AppRoutingModule,

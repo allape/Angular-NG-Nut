@@ -1,12 +1,12 @@
 <!-- 背景图片 -->
-<div class="login-background"></div>
+<div class="login-background" [@fadein]></div>
 
 <!-- 标题 -->
-<div nz-row [nzType]="'flex'" [nzJustify]="'center'">
+<div nz-row [nzType]="'flex'" [nzJustify]="'center'" [@fadein]>
   <div nz-col [nzSpan]="12" class="login-title"><h1>管理员登录</h1></div>
 </div>
 <!-- 内容 -->
-<div nz-row [nzType]="'flex'" [nzJustify]="'center'">
+<div nz-row [nzType]="'flex'" [nzJustify]="'center'" [@fadein]>
   <div nz-col [nzSpan]="8" class="login-content">
     <!-- 表单 -->
     <form nz-form [formGroup]="loginForm">

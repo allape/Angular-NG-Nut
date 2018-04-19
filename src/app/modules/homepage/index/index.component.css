@@ -1,0 +1,7 @@
+:host ::ng-deep nz-layout {
+  height: 100%;
+}
+
+:host ::ng-deep nz-layout nz-footer {
+  text-align: center;
+}

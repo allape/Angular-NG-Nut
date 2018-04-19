@@ -5,11 +5,15 @@ import {Title} from '@angular/platform-browser';
 import {Utils} from '../../../../../base/utils/utils';
 import {environment} from '../../../../../../environments/environment';
 import {NzMessageService} from 'ng-zorro-antd';
+import {fadeInFromDown2Up} from '../../../../../app.animations';
 
 @Component({
   selector: 'app-admin-dashboard-sys-user',
   templateUrl: './user.component.html',
-  styleUrls: ['./user.component.css']
+  styleUrls: ['./user.component.css'],
+  animations: [
+    fadeInFromDown2Up
+  ]
 })
 export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
 

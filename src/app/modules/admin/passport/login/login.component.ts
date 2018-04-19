@@ -8,11 +8,15 @@ import {NzMessageService} from 'ng-zorro-antd';
 import {ADMIN_ROUTES, AdminService} from '../../admin.service';
 import {Utils} from '../../../../base/utils/utils';
 import {Md5} from 'ts-md5';
+import {fadein} from '../../../../app.animations';
 
 @Component({
   selector: 'app-admin-passport-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['./login.component.css'],
+  animations: [
+    fadein
+  ]
 })
 export class LoginComponent implements OnInit, OnDestroy {
 
