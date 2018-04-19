@@ -23,15 +23,12 @@ export class PermissionDirective {
         }
         // 循环检查
         const user = this.as.getUser();
-        for (const permission of permissions) {
-          for (const up of user['permissions']) {
-            if (up === permission) {
+        if (Utils.referencable(user) && user instanceof Array) {
+          for (const permission of permissions) {
+            if (user['permissions'].includes(permission)) {
               granted = true;
               break;
             }
-          }
-          if (granted) {
-            break;
           }
         }
       }
