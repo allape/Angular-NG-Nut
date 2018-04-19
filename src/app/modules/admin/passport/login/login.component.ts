@@ -6,6 +6,8 @@ import {environment} from '../../../../../environments/environment';
 import {HttpService} from '../../../../base/services/http.service';
 import {NzMessageService} from 'ng-zorro-antd';
 import {ADMIN_ROUTES, AdminService} from '../../admin.service';
+import {Utils} from '../../../../base/utils/utils';
+import {Md5} from 'ts-md5';
 
 @Component({
   selector: 'app-admin-passport-login',
@@ -24,7 +26,7 @@ export class LoginComponent implements OnInit, OnDestroy {
    * 存放在localStorage的用户名的key
    * @type {string}
    */
-  private USERNAME_REMEMBERED_KEY = 'as_ng_nut_admin_passport_login_USERNAME_REMEMBER_KEY';
+  private USER_REMEMBERED_KEY = 'as_ng_nut_admin_passport_login_USER_REMEMBERED_KEY';
 
   /**
    * 登录表单
@@ -61,23 +63,44 @@ export class LoginComponent implements OnInit, OnDestroy {
       rememberme: [null, [Validators.required]],
     });
 
-    // 读取localStorage, 设置用户名
-    const un = window.localStorage.getItem(this.USERNAME_REMEMBERED_KEY);
-    if (un != null) {
-      this.loginForm.patchValue({
-        username:     un,
-        rememberme:   true
-      });
-    } else {
-      this.loginForm.patchValue({
-        rememberme:   false
-      });
+    // 读取localStorage, 设置记住的用户名以及密码
+    try {
+      const user = JSON.parse(window.localStorage.getItem(this.USER_REMEMBERED_KEY));
+      if (Utils.referencable(user)) {
+        this.loginForm.patchValue({
+          username:     (user['username'] ? user['username'] : '') + '',
+          password:     (user['password'] ? user['password'] : '') + '',
+          rememberme:   true
+        });
+      } else {
+        this.loginForm.patchValue({
+          rememberme:   false
+        });
+      }
+    } catch (e) {
+      console.error('获取localStorage的管理员登录信息失败! err:', e);
     }
+
+    // 加载验证码
+    this.loadVerfiyCodeImg();
   }
 
   ngOnDestroy(): void {
     // 解除组件
     this.cs.unregisterComponent(this.COMPONENT_NAME);
+  }
+
+  /**
+   * TODO 获取/刷新验证码
+   */
+  public loadVerfiyCodeImg() {
+    console.log('刷新验证码!');
+    // 请求网络
+    /*this.http.get('').subscribe(
+      (res: any) => {
+        this.verifycodeImg = res.data;
+      }
+    );*/
   }
 
   /**
@@ -87,16 +110,22 @@ export class LoginComponent implements OnInit, OnDestroy {
     // 获取表单数据
     const data = this.loginForm.getRawValue();
 
+    // 格式化数据 TODO 将密码进行md5取值
+    // if (data.password.length < 32) {
+    //   data.password = Md5.hashStr(data.password).toString();
+    // }
+
     // 如果"记住我"选中了的, 则将用户名放入localStorage
     if (data.rememberme === true) {
-      window.localStorage.setItem(this.USERNAME_REMEMBERED_KEY, data.username);
+      window.localStorage.setItem(this.USER_REMEMBERED_KEY, JSON.stringify(data));
     } else {
-      window.localStorage.removeItem(this.USERNAME_REMEMBERED_KEY);
+      window.localStorage.removeItem(this.USER_REMEMBERED_KEY);
     }
 
     this.http.post(environment.http.urls.auth.token, {
-      username: data.username,
-      password: data.password,
+      username:     data.username,
+      password:     data.password,
+      verifycode:   data.verifycode,
     }, {
       notOkMsg: '登录失败',
     }).subscribe((res: any) => {

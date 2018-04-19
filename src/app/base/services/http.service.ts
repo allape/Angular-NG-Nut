@@ -119,7 +119,7 @@ export class HttpService {
       reportProgress?: boolean;
       withCredentials?: boolean;
     },
-    extras: any
+    extras?: any
   ): Observable<Object> {
     this.loading = true;
     return new Observable<Object>((observer) => {
