@@ -5,7 +5,7 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {
   NzNotificationService,
   NzMessageService,
-  NgZorroAntdModule
+  NgZorroAntdModule, NZ_MESSAGE_CONFIG
 } from 'ng-zorro-antd';
 import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import {ReactiveFormsModule} from '@angular/forms';
@@ -36,6 +36,8 @@ import {AdminInterceptorService} from './modules/admin/admin-interceptor.service
     // 消息通知
     NzMessageService,
     NzNotificationService,
+    // 消息通知配置
+    {provide: NZ_MESSAGE_CONFIG, useValue: {nzDuration: 3500}},
     // 网络服务
     HttpService,
     // 网络拦截器
