@@ -32,8 +32,9 @@ export const flyIn = trigger('flyIn', [
 export const fadeInFromDown2Up = trigger('fadeInFromDown2Up', [
   // 进场动画
   transition('void => *', [
-    animate('0.3s ease-in-out', keyframes([
-      style({opacity: 0, transform: 'translateY(10%)', offset: 0}),
+    animate('0.5s ease-in-out', keyframes([
+      style({opacity: 0, offset: 0}),
+      style({opacity: 0, transform: 'translateY(10%)', offset: 0.5}),
       style({opacity: 1, transform: 'translateY(0)',    offset: 1}),
     ]))
   ]),
