@@ -9,7 +9,7 @@ export class Utils {
    * @returns {boolean}
    */
   public static hasText(s: any): boolean {
-    return s === undefined ? false : (
+    return !Utils.referencable(s) ? false : (
       typeof s === 'string' ?
         /^[\S]+$/gi.test(s === null ? '' : s.replace(/\s/gi, '')) :
         Utils.hasText(s.toString())
@@ -22,7 +22,7 @@ export class Utils {
    * @returns {boolean}
    */
   public static hasLength(s: any): boolean {
-    return s === undefined ? false : (
+    return !Utils.referencable(s) ? false : (
       typeof s === 'string' ?
       (s === null ? false : (s.length > 0)) :
       (s instanceof Array ? (s === null ? false : (s.length > 0)) : Utils.hasLength(s.toString()))
@@ -35,7 +35,7 @@ export class Utils {
    * @returns {boolean}   true: 可以引用; false: 不可引用
    */
   public static referencable(obj: any): boolean {
-    return obj === null || obj === undefined ? false : true;
+    return !(obj === null || obj === undefined);
   }
 
   /**

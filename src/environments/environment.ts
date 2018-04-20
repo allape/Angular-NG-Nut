@@ -23,23 +23,25 @@ export const environment = {
   // 网络配置
   http: {
     // 服务器
-    host: 'http://47.96.143.154:9090',
-    // host: 'http://192.168.2.49:8080',
+    // host: 'http://47.96.143.154:9090',
+    host: 'http://192.168.2.49:9999',
     // 请求列表
     urls: {
       // 登录授权
       auth: {
         // 登录
-        token:          '/auth/token',
+        token:          '/api/login',
         // 登出
-        loginOut:       '/auth/loginOut/'
+        loginOut:       '/auth/loginOut/',
+        // 验证码
+        captcha:        '/api/captcha'
       },
       // 管理员
       user: {
         // 获取当前管理员信息
         current:        '/api/sys/permission/user/current',
         // 管理员分页列表
-        search:         '/api/sys/permission/user/search'
+        list:         '/api/sys/permission/user/list'
       }
     },
     // 服务器响应内容

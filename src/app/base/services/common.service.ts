@@ -18,10 +18,16 @@ export class CommonService {
   private data = {};
 
   /**
-   * 在common service中注册了的组件, 用于对组件的特定操作
+   * 注册了的组件, 用于对组件的特定操作
    * @type {any[]}
    */
   private registeredComponents = {};
+
+  /**
+   * 注册了的服务, 用于在上级或者更上几级的服务中调用子服务
+   * @type {{}}
+   */
+  private registeredServices = {};
 
   constructor(
     private injector: Injector,
@@ -59,7 +65,7 @@ export class CommonService {
 
   // endregion
 
-  // region 组件操作
+  // region 注册组件操作
 
   /**
    * 注册组件
@@ -69,7 +75,7 @@ export class CommonService {
    */
   public registerComponent(name: string, component: any, forcelyOverride: boolean = true) {
     if (this.registeredComponents[name] !== undefined && !forcelyOverride) {
-      throw new Error(name + '已被注册!');
+      throw new Error('组件' + name + '已被注册!');
     } else {
       this.registeredComponents[name] = component;
     }
@@ -77,20 +83,67 @@ export class CommonService {
 
   /**
    * 移除注册了的组件
-   * @param {string} name     移除组件的名称
+   * @param {string} name     移除组件的名称; 未提供时清除所有注册了的组件
    * @returns {boolean}
    */
-  public unregisterComponent(name: string) {
-    delete this.registeredComponents[name];
+  public unregisterComponent(name?: string) {
+    if (name === undefined) {
+      this.registeredComponents = {};
+    } else {
+      delete this.registeredComponents[name];
+    }
     return true;
   }
 
   /**
    * 获取注册了的组件
-   * @param {string} name
+   * @param {string} name       名称
+   * @param defaultComponent    未找到指定的组件时返回的数据
    */
-  public getRegisteredComponent(name: string) {
-    return this.registeredComponents[name];
+  public getRegisteredComponent(name: string, defaultComponent: any = null) {
+    return this.registeredComponents[name] ? this.registeredComponents[name] : defaultComponent;
+  }
+
+  // endregion
+
+  // region 注册服务操作
+
+  /**
+   * 注册服务
+   * @param {string} name             注册的名称
+   * @param service                   注册的服务
+   * @param {boolean} forcelyOverride 是否强制覆盖
+   */
+  public registerService(name: string, service: any, forcelyOverride: boolean = true) {
+    if (this.registeredServices[name] !== undefined && !forcelyOverride) {
+      throw new Error('服务' + name + '已被注册!');
+    } else {
+      this.registeredServices[name] = service;
+    }
+  }
+
+  /**
+   * 移除服务的注册
+   * @param {string} name         解除注册的名称; 未提供时清除所有注册服务
+   * @returns {boolean}
+   */
+  public unregisterService(name?: string) {
+    if (name === undefined) {
+      this.registeredServices = {};
+    } else {
+      delete this.registeredServices[name];
+    }
+    return true;
+  }
+
+  /**
+   * 获取注册了的服务
+   * @param {string} name     名称
+   * @param defaultService 未找到指定的服务时, 返回该参数
+   * @returns {any}
+   */
+  public getRegisteredService(name: string, defaultService: any = null) {
+    return this.registeredServices[name] ? this.registeredServices[name] : defaultService;
   }
 
   // endregion

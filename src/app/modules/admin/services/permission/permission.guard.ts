@@ -1,7 +1,7 @@
 import {ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
-import {ADMIN_ROUTES, AdminService} from '../../../admin.service';
-import {CommonService} from '../../../../../base/services/common.service';
+import {ADMIN_ROUTES, AdminService} from '../admin.service';
+import {CommonService} from '../../../../base/services/common.service';
 import {Injectable} from '@angular/core';
 
 @Injectable()

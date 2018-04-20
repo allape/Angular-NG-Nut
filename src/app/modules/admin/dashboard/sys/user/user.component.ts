@@ -5,14 +5,15 @@ import {Title} from '@angular/platform-browser';
 import {Utils} from '../../../../../base/utils/utils';
 import {environment} from '../../../../../../environments/environment';
 import {NzMessageService} from 'ng-zorro-antd';
-import {fadeInFromDown2Up} from '../../../../../app.animations';
+import {fadein, fadeInFromDown2Up} from '../../../../../app.animations';
+import {FormControl, FormGroup} from '@angular/forms';
 
 @Component({
   selector: 'app-admin-dashboard-sys-user',
   templateUrl: './user.component.html',
   styleUrls: ['./user.component.css'],
   animations: [
-    fadeInFromDown2Up
+    fadeInFromDown2Up, fadein
   ]
 })
 export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
@@ -26,9 +27,12 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
   // 每页数量
   public pageRowNum = 30;
   // 所有条数
-  public totalPage = 0;
+  public totalRecords = 0;
   // 搜索参数
-  public search = {};
+  public search: FormGroup = new FormGroup({
+    username: new FormControl(),
+    realname: new FormControl(),
+  });
   // 排序参数
   public sort = {
     predicate: '',
@@ -66,17 +70,17 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
     this.currentPage = Utils.formatPageNum(curentPage, this.currentPage);
 
     // 请求数据
-    this.http.post(environment.http.urls.user.search, {
+    this.http.post(environment.http.urls.user.list, {
       curentPage:           this.currentPage,
       pageRowNum:           this.pageRowNum,
-      search:               this.search,
+      search:               this.search.getRawValue(),
       sort:                 this.sort,
     }, {notOkMsg: '加载用户列表失败'}).subscribe(
       (res: any) => {
         this.list =             res.data.data;
         this.currentPage =      res.data['currentPage'];
         this.pageRowNum =       res.data['pageSize'];
-        this.totalPage =        res.data['totalRecords'];
+        this.totalRecords =     res.data['totalRecords'];
       }
     );
   }

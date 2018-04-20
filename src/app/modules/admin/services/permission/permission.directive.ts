@@ -1,6 +1,6 @@
 import {Directive, ElementRef, Input} from '@angular/core';
-import {AdminService} from '../../../admin.service';
-import {Utils} from '../../../../../base/utils/utils';
+import {AdminService} from '../admin.service';
+import {Utils} from '../../../../base/utils/utils';
 
 @Directive({
   selector: '[hasPermissions]'
@@ -23,7 +23,7 @@ export class PermissionDirective {
         }
         // 循环检查
         const user = this.as.getUser();
-        if (Utils.referencable(user) && user instanceof Array) {
+        if (Utils.referencable(user) && user['permissions'] instanceof Array) {
           for (const permission of permissions) {
             if (user['permissions'].includes(permission)) {
               granted = true;

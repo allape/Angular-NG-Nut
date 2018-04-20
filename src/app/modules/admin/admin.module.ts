@@ -1,9 +1,10 @@
 import { NgModule } from '@angular/core';
 import {AdminRoutingModule} from './admin-routing.module';
-import {AdminService} from './admin.service';
-import {PermissionGuard} from './dashboard/core/permission/permission.guard';
+import {AdminService} from './services/admin.service';
+import {PermissionGuard} from './services/permission/permission.guard';
 import {HttpService} from '../../base/services/http.service';
 import {environment} from '../../../environments/environment';
+import {AdminTokenService} from './services/token/admin-token.service';
 
 @NgModule({
   imports: [
@@ -12,6 +13,7 @@ import {environment} from '../../../environments/environment';
   declarations: [],
   providers: [
     AdminService,
+    AdminTokenService,
     PermissionGuard,
   ]
 })

@@ -5,6 +5,7 @@ import {ErrorObservable} from 'rxjs/observable/ErrorObservable';
 import {catchError} from 'rxjs/operators';
 import {mergeMap} from 'rxjs/operators';
 import {NzMessageService} from 'ng-zorro-antd';
+import {Utils} from '../utils/utils';
 
 @Injectable()
 export class InterceptorService implements HttpInterceptor {
@@ -31,20 +32,22 @@ export class InterceptorService implements HttpInterceptor {
       }),
       // 捕捉错误
       catchError((res: HttpResponse<any>) => {
-        // 根据不同的错误进行处理
-        switch (res.status) {
-          case 401:
-            break;
-          case 200:
-            break;
-          case 404:
-            break;
-          case 403:
-            break;
-          case 500:
-            break;
+        if (Utils.referencable(res)) {
+          // 根据不同的错误进行处理
+          switch (res.status) {
+            case 401:
+              break;
+            case 200:
+              break;
+            case 404:
+              break;
+            case 403:
+              break;
+            case 500:
+              break;
+          }
+          this.msg.error('服务器错误! code: ' + (res.status ? res.status : '未指定响应代号!'));
         }
-        this.msg.error('服务器错误! code: ' + (res.status ? res.status : '未指定响应代号!'));
         return ErrorObservable.create(event);
       })
     );

@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Title} from '@angular/platform-browser';
 import {CommonService} from '../../../base/services/common.service';
-import {AdminService} from '../admin.service';
+import {AdminService} from '../services/admin.service';
 import {fadeInFromDown2Up} from '../../../app.animations';
 
 @Component({
@@ -93,8 +93,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       aside['style'].backgroundColor = colorHex;
       // 菜单
       const menus = aside.querySelectorAll('.ant-menu');
-      for (const menu of menus) {
-        menu['style'].backgroundColor = colorHex;
+      for (let i = 0; i < menus.length; i++) {
+        menus[i]['style'].backgroundColor = colorHex;
       }
     }
 

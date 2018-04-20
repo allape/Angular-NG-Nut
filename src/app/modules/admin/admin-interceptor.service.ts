@@ -1,14 +1,15 @@
 import {Injectable, Injector} from '@angular/core';
-import {HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpResponse, HttpHeaders} from '@angular/common/http';
+import {HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpResponse} from '@angular/common/http';
 import {Observable} from 'rxjs/Observable';
 import {ErrorObservable} from 'rxjs/observable/ErrorObservable';
 import {catchError} from 'rxjs/operators';
 import {mergeMap} from 'rxjs/operators';
 import {NzMessageService} from 'ng-zorro-antd';
 import {CommonService} from '../../base/services/common.service';
-import {ADMIN_ROUTES, COMMON_DATA_HEADERS_KEY} from './admin.service';
+import {ADMIN_ROUTES} from './services/admin.service';
 import {Utils} from '../../base/utils/utils';
 import {environment} from '../../../environments/environment';
+import {ADMIN_TOKEN_SERVICE_NAME} from './services/token/admin-token.service';
 
 @Injectable()
 export class AdminInterceptorService implements HttpInterceptor {
@@ -26,24 +27,19 @@ export class AdminInterceptorService implements HttpInterceptor {
    * @returns {Observable<HttpEvent<any>>}
    */
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-
-    // 获取寄存数据
-    let headers: HttpHeaders = new HttpHeaders();
-    const userHeaders = this.cs.getData(COMMON_DATA_HEADERS_KEY);
-    if (Utils.referencable(userHeaders)) {
-      for (const uhk in userHeaders) {
-        if (userHeaders.hasOwnProperty(uhk)) {
-          headers = req.headers.set(uhk, userHeaders[uhk]);
-        }
+    // 获取管理员Token服务
+    const ats = this.cs.getRegisteredService(ADMIN_TOKEN_SERVICE_NAME);
+    if (ats !== null) {
+      const token = ats.getToken('Beaer WEB ');
+      if (Utils.hasText(token)) {
+        // 设置请求头
+        req = req.clone({
+          headers: req.headers.set('Authorization', token)
+        });
       }
     }
 
-    // 设置请求头
-    const copiedReq = req.clone({
-      headers: headers
-    });
-
-    return next.handle(copiedReq).pipe(
+    return next.handle(req).pipe(
       // 处理完成的时候
       mergeMap((event: any) => {
         // 检查基础参数
@@ -85,4 +81,5 @@ export class AdminInterceptorService implements HttpInterceptor {
       })
     );
   }
+
 }

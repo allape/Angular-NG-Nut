@@ -1,11 +1,36 @@
+<!-- 搜索输入框 -->
+<nz-card @fadein style="margin-bottom: 20px;" class="search-box">
+  <ng-template #body>
+    <form nz-form [formGroup]="search">
+
+      <div nz-row nz-form-item style="margin-bottom: 0;">
+        <!-- 账号 -->
+        <div nz-form-label nz-col [nzSpan]="2"><label>账号</label></div>
+        <div nz-form-control nz-col [nzSpan]="8">
+          <nz-input formControlName="username" [nzPlaceHolder]="'搜索账号'" name="username"></nz-input>
+        </div>
+        <!-- 姓名 -->
+        <div nz-form-label nz-col [nzSpan]="2"><label>姓名</label></div>
+        <div nz-form-control nz-col [nzSpan]="8">
+          <nz-input formControlName="realname" [nzPlaceHolder]="'搜索姓名'" name="username"></nz-input>
+        </div>
+        <!-- 按钮 -->
+        <div nz-col [nzSpan]="4" style="text-align: right;">
+          <button nz-button [nzType]="'primary'" [nzLoading]="http.loading" (click)="getList();">搜索</button>
+        </div>
+      </div>
+
+    </form>
+  </ng-template>
+</nz-card>
 <!-- 列表 -->
-<nz-card [nzNoHovering]="true" [@fadeInFromDown2Up]>
+<nz-card [nzNoHovering]="true" @fadeInFromDown2Up>
   <ng-template #body>
     <nz-table #nzTable
               [nzAjaxData]="list"
               [nzShowSizeChanger]="false"
               [nzLoading]="http.loading"
-              [nzTotal]="totalPage"
+              [nzTotal]="totalRecords"
               [(nzPageIndex)]="currentPage"
               [(nzPageSize)]="pageRowNum"
               (nzPageIndexChange)="getList()"
@@ -14,13 +39,17 @@
         <tr>
           <th nz-th><span>账号</span></th>
           <th nz-th><span>姓名</span></th>
-          <th nz-th><span>操作</span></th>
+          <th nz-th><span>电话</span></th>
+          <th nz-th><span>性别</span></th>
+          <th nz-th style="width: 10%;"><span>操作</span></th>
         </tr>
       </thead>
       <tbody nz-tbody>
         <tr nz-tbody-tr *ngFor="let data of nzTable.data">
-          <td nz-td>{{data.userName}}</td>
-          <td nz-td>{{data.realName}}</td>
+          <td nz-td>{{data.username}}</td>
+          <td nz-td>{{data.realname}}</td>
+          <td nz-td>{{data.phone}}</td>
+          <td nz-td>{{data.sex === 0 ? '女士' : '先生'}}</td>
           <td nz-td>
             <a>编辑</a>
             <span nz-table-divider></span>
