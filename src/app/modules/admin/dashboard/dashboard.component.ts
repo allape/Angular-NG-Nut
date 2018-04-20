@@ -86,16 +86,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
     let colorHex = this.changingColor.toString(16);
     colorHex = '#' + (colorHex.length < 6 ? Array(7 - colorHex.length).join('0') : '') + colorHex;
 
-    // FIXME 优化菜单彩虹颜色
-
     // 获取控件并赋值
-    /*const header = document.body.querySelector('nz-sider');
-    if (header !== null && header['style']) {
-      header['style'].backgroundColor = colorHex;
-    }*/
+    // 侧菜单
     const aside = document.body.querySelector('nz-sider');
     if (aside !== null && aside['style']) {
       aside['style'].backgroundColor = colorHex;
+      // 菜单
+      const menus = aside.querySelectorAll('.ant-menu');
+      for (const menu of menus) {
+        menu['style'].backgroundColor = colorHex;
+      }
     }
 
     // 整理并计算下一阶段的颜色, 红橙黄绿青蓝紫

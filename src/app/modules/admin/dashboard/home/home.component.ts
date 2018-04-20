@@ -1,11 +1,15 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Title} from '@angular/platform-browser';
 import {CommonService} from '../../../../base/services/common.service';
+import {fadeInFromDown2Up} from '../../../../app.animations';
 
 @Component({
   selector: 'app-admin-dashboard-home',
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css']
+  styleUrls: ['./home.component.css'],
+  animations: [
+    fadeInFromDown2Up
+  ]
 })
 export class HomeComponent implements OnInit, OnDestroy {
 

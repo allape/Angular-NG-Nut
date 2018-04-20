@@ -30,6 +30,8 @@ export const flyIn = trigger('flyIn', [
  * @type {AnimationTriggerMetadata}
  */
 export const fadeInFromDown2Up = trigger('fadeInFromDown2Up', [
+  // 默认状态
+  state('void', style({opacity: '0'})),
   // 进场动画
   transition('void => *', [
     animate('0.5s ease-in-out', keyframes([
