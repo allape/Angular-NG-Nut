@@ -81,3 +81,11 @@ nz-layout#dashboard > .right-content > nz-content {
 nz-layout#dashboard > .right-content > nz-footer {
   text-align: center;
 }
+
+/* 子模块下列表搜索框 */
+::ng-deep .search-box .nz-row {
+  margin-bottom: 0;
+}
+::ng-deep form > .buttons {
+  text-align: center;
+}

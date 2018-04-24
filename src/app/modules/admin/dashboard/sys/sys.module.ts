@@ -11,10 +11,10 @@ import {ReactiveFormsModule} from '@angular/forms';
     CommonModule,
     // 路由
     SysRoutingModule,
-    // ng-zorro
-    NgZorroAntdModule,
     // 表单模块
     ReactiveFormsModule,
+    // ng-zorro
+    NgZorroAntdModule,
   ],
   declarations: [
     UserComponent

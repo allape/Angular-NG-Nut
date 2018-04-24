@@ -1,4 +1,12 @@
 /**
+ * 通用正则
+ * @type {{CHINA_PHONE: RegExp}}
+ */
+export const REGEXP = {
+  CHINA_PHONE:    /^1[35678]\d{9}$/,
+};
+
+/**
  * 静态工具类
  */
 export class Utils {

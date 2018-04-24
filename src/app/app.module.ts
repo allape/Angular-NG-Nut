@@ -1,4 +1,4 @@
-import {BrowserModule, Title} from '@angular/platform-browser';
+import {Title} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
 import {AppComponent} from './app.component';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
@@ -26,10 +26,10 @@ import {AdminInterceptorService} from './modules/admin/admin-interceptor.service
     AppRoutingModule,
     // 网络服务
     HttpClientModule,
-    // zorro模块
-    NgZorroAntdModule,
     // 表单模块
     ReactiveFormsModule,
+    // zorro模块
+    NgZorroAntdModule.forRoot(),
   ],
   providers: [
     // 消息通知

@@ -1,28 +1,35 @@
+
 <!-- 搜索输入框 -->
 <nz-card @fadein style="margin-bottom: 20px;" class="search-box">
   <ng-template #body>
-    <form nz-form [formGroup]="search">
+    <form nz-form [formGroup]="searchForm">
 
-      <div nz-row nz-form-item style="margin-bottom: 0;">
+      <div nz-row nz-form-item>
         <!-- 账号 -->
         <div nz-form-label nz-col [nzSpan]="2"><label>账号</label></div>
-        <div nz-form-control nz-col [nzSpan]="8">
+        <div nz-form-control nz-col [nzSpan]="7">
           <nz-input formControlName="username" [nzPlaceHolder]="'搜索账号'" name="username"></nz-input>
         </div>
         <!-- 姓名 -->
         <div nz-form-label nz-col [nzSpan]="2"><label>姓名</label></div>
-        <div nz-form-control nz-col [nzSpan]="8">
+        <div nz-form-control nz-col [nzSpan]="7">
           <nz-input formControlName="realname" [nzPlaceHolder]="'搜索姓名'" name="username"></nz-input>
         </div>
         <!-- 按钮 -->
-        <div nz-col [nzSpan]="4" style="text-align: right;">
-          <button nz-button [nzType]="'primary'" [nzLoading]="http.loading" (click)="getList();">搜索</button>
+        <div nz-col [nzSpan]="6" style="text-align: right;">
+          <nz-button-group>
+            <button nz-button [nzType]="'primary'" [nzLoading]="http.loading" (click)="getList();">搜索</button>
+            <button nz-button [nzType]="'default'" [nzLoading]="http.loading" (click)="searchForm.reset(); getList();">清空</button>
+          </nz-button-group>
+
+          <button nz-button [nzType]="'primary'" [nzLoading]="http.loading" (click)="showAdditBox('添加管理员');">添加</button>
         </div>
       </div>
 
     </form>
   </ng-template>
 </nz-card>
+
 <!-- 列表 -->
 <nz-card [nzNoHovering]="true" @fadeInFromDown2Up>
   <ng-template #body>
@@ -51,7 +58,7 @@
           <td nz-td>{{data.phone}}</td>
           <td nz-td>{{data.sex === 0 ? '女士' : '先生'}}</td>
           <td nz-td>
-            <a>编辑</a>
+            <a (click)="showAdditBox('修改 - ' + data.username, data);">编辑</a>
             <span nz-table-divider></span>
             <nz-popconfirm [nzTitle]="'确认删除?'" [nzOkText]="'确定'" [nzCancelText]="'取消'" (nzOnConfirm)="del(data.id);">
               <a nz-popconfirm>删除</a>
@@ -62,3 +69,55 @@
     </nz-table>
   </ng-template>
 </nz-card>
+
+<!-- 添加修改 -->
+<ng-template #additBox>
+  <form nz-form [formGroup]="additForm">
+    <nz-input formControlName="id" name="id" [nzType]="'hidden'"></nz-input>
+
+    <!-- 账号 -->
+    <div nz-row nz-form-item>
+      <div nz-form-label nz-col [nzSpan]="6"><label nz-form-item-required>账号</label></div>
+      <div nz-form-control nz-col [nzSpan]="18">
+        <nz-input formControlName="username" name="username"
+                  [nzPlaceHolder]="'3~16位的英文字母/数字/中文/下划线'" [nzType]="'text'" [nzSize]="'large'"></nz-input>
+        <ng-container *ngIf="fc(additForm, 'username').dirty || fc(additForm, 'username').touched">
+          <p nz-form-explain *ngIf="fc(additForm, 'username').errors?.required">请输入管理员的账号</p>
+          <p nz-form-explain *ngIf="fc(additForm, 'username').errors?.pattern">请输入正确格式的账号</p>
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- 姓名 -->
+    <div nz-row nz-form-item>
+      <div nz-form-label nz-col [nzSpan]="6"><label nz-form-item-required>姓名</label></div>
+      <div nz-form-control nz-col [nzSpan]="18">
+        <nz-input formControlName="realname" name="realname"
+                  [nzPlaceHolder]="'2~16位的英文字母/数字/中文/下划线'" [nzType]="'text'" [nzSize]="'large'"></nz-input>
+        <ng-container *ngIf="fc(additForm, 'realname').dirty || fc(additForm, 'realname').touched">
+          <p nz-form-explain *ngIf="fc(additForm, 'realname').errors?.required">请输入管理员的姓名</p>
+          <p nz-form-explain *ngIf="fc(additForm, 'realname').errors?.pattern">请输入正确格式的姓名</p>
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- 电话 -->
+    <div nz-row nz-form-item>
+      <div nz-form-label nz-col [nzSpan]="6"><label nz-form-item-required>电话</label></div>
+      <div nz-form-control nz-col [nzSpan]="18" nzHasFeedback>
+        <nz-input formControlName="phone" name="phone"
+                  [nzPlaceHolder]="'中国大陆手机号'" [nzType]="'text'" [nzSize]="'large'"></nz-input>
+        <ng-container *ngIf="fc(additForm, 'phone').dirty || fc(additForm, 'phone').touched">
+          <p nz-form-explain *ngIf="fc(additForm, 'phone').errors?.required">请输入管理员的电话</p>
+          <p nz-form-explain *ngIf="fc(additForm, 'phone').errors?.pattern">请输入正确格式的电话</p>
+        </ng-container>
+      </div>
+    </div>
+
+    <div nz-row class="buttons">
+      <button nz-button [nzSize]="'large'" [nzType]="'primary'" [nzLoading]="http.loading">确定</button>
+      <button nz-button [nzSize]="'large'" [nzType]="'default'" [nzLoading]="http.loading" (click)="additModal.destroy();">取消</button>
+    </div>
+
+  </form>
+</ng-template>
