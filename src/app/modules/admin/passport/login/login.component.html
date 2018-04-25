@@ -39,9 +39,9 @@
         <!-- 标签 -->
         <div nz-form-label nz-col [nzSpan]="4"><label nz-form-item-required>验证码</label></div>
         <!-- 输入框 -->
-        <div nz-form-control nz-col [nzSpan]="9" [nzValidateStatus]="loginForm.controls.verifycode" nzHasFeedback>
-          <nz-input formControlName="verifycode" [nzPlaceHolder]="'请输入图片验证码'"
-                    [nzSize]="'large'" [nzType]="'verifycode'" [nzReadonly]="http.loading"></nz-input>
+        <div nz-form-control nz-col [nzSpan]="9" [nzValidateStatus]="loginForm.controls.captcha" nzHasFeedback>
+          <nz-input formControlName="captcha" [nzPlaceHolder]="'请输入图片验证码'"
+                    [nzSize]="'large'" [nzType]="'captcha'" [nzReadonly]="http.loading"></nz-input>
         </div>
         <div nz-col [nzSpan]="1"></div>
         <div nz-col [nzSpan]="4" (click)="!http.loading && loadVerfiyCodeImg();">

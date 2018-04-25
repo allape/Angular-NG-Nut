@@ -1,6 +1,7 @@
 import {Injectable, Injector} from '@angular/core';
 import {environment} from '../../../environments/environment';
 import {Router} from '@angular/router';
+import {DomSanitizer} from '@angular/platform-browser';
 
 @Injectable()
 export class CommonService {
@@ -199,6 +200,30 @@ export class CommonService {
       throw new Error('获取寄存的数据不存在!');
     }
     return this.data[name];
+  }
+
+  // endregion
+
+  // region 安全链接处理
+
+  /**
+   * 过滤url, 防止安全机制拦截
+   * @param {string} url
+   */
+  public formatUnsafeURL(url: string): any {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  }
+
+  // endregion
+
+  // region 异步获取其他服务
+
+  /**
+   * 安全url过滤服务
+   * @returns {DomSanitizer}
+   */
+  get sanitizer(): DomSanitizer {
+    return this.injector.get(DomSanitizer);
   }
 
   // endregion

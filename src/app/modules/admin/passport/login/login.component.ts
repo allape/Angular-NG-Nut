@@ -3,7 +3,7 @@ import {Title} from '@angular/platform-browser';
 import {CommonService} from '../../../../base/services/common.service';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {environment} from '../../../../../environments/environment';
-import {HttpService} from '../../../../base/services/http.service';
+import {HttpService} from '../../../../base/services/http/http.service';
 import {NzMessageService} from 'ng-zorro-antd';
 import {ADMIN_ROUTES, AdminService} from '../../services/admin.service';
 import {Utils} from '../../../../base/utils/utils';
@@ -63,10 +63,16 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     // 初始化表单
     this.loginForm = this.fb.group({
+      // 账号
       username:   [null, [Validators.required]],
+      // 密码
       password:   [null, [Validators.required]],
-      verifycode: [null, [Validators.required]],
+      // 验证码
+      captcha:    [null, [Validators.required]],
+      // 记住我
       rememberme: [null, [Validators.required]],
+      // 验证码的key
+      key:        [''],
     });
 
     // 读取localStorage, 设置记住的用户名以及密码
@@ -100,11 +106,15 @@ export class LoginComponent implements OnInit, OnDestroy {
    * 获取/刷新验证码
    */
   public loadVerfiyCodeImg() {
-    // 当前时间
-    const now = Date.now();
     // 请求网络
-    this.verifycodeImg = (this.verifycodeImg.includes('?') ? this.verifycodeImg.split('?')[0] : this.verifycodeImg) +
-      '?t=' + now;
+    this.http.get(environment.http.urls.auth.captcha, {
+      notOkMsg: '获取验证码',
+    }).subscribe(
+      (res: any) => {
+        this.verifycodeImg = this.cs.formatUnsafeURL(res.data.captcha);
+        this.loginForm.controls.key.setValue(res.data.key);
+      }
+    );
   }
 
   /**
@@ -126,11 +136,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       window.localStorage.removeItem(this.USER_REMEMBERED_KEY);
     }
 
-    this.http.post(environment.http.urls.auth.token, {
-      username:     data.username,
-      password:     data.password,
-      verifycode:   data.verifycode,
-    }, {
+    this.http.post(environment.http.urls.auth.token, data, {
       notOkMsg: '登录失败',
     }).subscribe((res: any) => {
       if (res.code === environment.http.rescodes.ok) {
@@ -140,6 +146,8 @@ export class LoginComponent implements OnInit, OnDestroy {
           },
           (e) => {
             this.msg.warning('登录失败! err: ' + e.msg);
+            // 加载验证码
+            this.loadVerfiyCodeImg();
           }
         );
       }

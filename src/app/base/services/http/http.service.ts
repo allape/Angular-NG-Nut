@@ -1,9 +1,11 @@
 import {enableProdMode, Injectable, Injector} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
-import {environment} from '../../../environments/environment';
+import {environment} from '../../../../environments/environment';
 import {NzMessageService} from 'ng-zorro-antd';
-import {Utils} from '../utils/utils';
+import {Utils} from '../../utils/utils';
+import {HttpMsgHandlerGlobal} from './http.msghandler.global';
+import {IHttpMsgHandlerGlobal} from './Ihttp.msghandler.global';
 
 // 开启生产模式, 防止提示loading在检查后改变
 enableProdMode();
@@ -14,22 +16,7 @@ export class HttpService {
   /**
    * 自定义响应内容提示配置
    */
-  public responseMsgConfig = {
-    // 响应编号在首级JSON中的名称 --> 例如: {"code": -1, "msg": "处理失败!"}
-    codeName:         'code',
-    // 响应消息在首级JSON中的名称 --> 如上
-    msgName:          'msg',
-    // 正常时候的编号, 不是这个的时候会提示消息
-    okCode:           1,
-    // 非正常的时候提示的消息
-    defaultNotOkMsg:  '数据加载失败!',
-    // 提示级别
-    msgLevel:         'warning',
-    // 是否显示响应的消息字段
-    showWithMsg:      true,
-    // 拼接响应消息的符号
-    msgSeparator:     ', ',
-  };
+  public msgHandler: IHttpMsgHandlerGlobal = new HttpMsgHandlerGlobal();
 
   /**
    * 公共请求头数据
@@ -119,7 +106,7 @@ export class HttpService {
       reportProgress?: boolean;
       withCredentials?: boolean;
     },
-    extras?: any
+    extras?: IHttpMsgHandlerGlobal
   ): Observable<Object> {
     this.loading = true;
     return new Observable<Object>((observer) => {
@@ -141,20 +128,20 @@ export class HttpService {
                 // 检查是否提示
                 extras['showNotOkMsg'] !== false &&
                 // 检查状态码是否ok
-                res[this.responseMsgConfig.codeName] !== this.responseMsgConfig.okCode &&
+                res[this.msgHandler.codeName] !== this.msgHandler.okCode &&
                 // 检查对应的消息级别是否存在
-                Utils.referencable(this.msg[this.responseMsgConfig.msgLevel])
+                Utils.referencable(this.msg[this.msgHandler.msgLevel])
               ) {
                 // 调用不同级别的
-                this.msg[this.responseMsgConfig.msgLevel](
-                  (Utils.hasText(extras['notOkMsg']) ? extras['notOkMsg'] : this.responseMsgConfig.defaultNotOkMsg) +
-                  (this.responseMsgConfig.showWithMsg ? this.responseMsgConfig.msgSeparator + res[this.responseMsgConfig.msgName] : '')
+                this.msg[this.msgHandler.msgLevel](
+                  (Utils.hasText(extras['notOkMsg']) ? extras['notOkMsg'] : this.msgHandler.notOkMsg) +
+                  (this.msgHandler.showWithMsg ? this.msgHandler.msgSeparator + res[this.msgHandler.msgName] : '')
                 );
               }
 
               // 检查是否有且仅响应ok码
               if (
-                res[this.responseMsgConfig.codeName] !== this.responseMsgConfig.okCode &&
+                res[this.msgHandler.codeName] !== this.msgHandler.okCode &&
                 extras['okResponse'] !== false
               ) {
                 // 如果仅仅响应ok状态, 则提示错误订阅

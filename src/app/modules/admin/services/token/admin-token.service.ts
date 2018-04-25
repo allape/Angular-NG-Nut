@@ -1,5 +1,5 @@
 import {Injectable, Injector} from '@angular/core';
-import {HttpService} from '../../../../base/services/http.service';
+import {HttpService} from '../../../../base/services/http/http.service';
 import {Utils} from '../../../../base/utils/utils';
 import {AdminToken} from './admin.token';
 import {CommonService} from '../../../../base/services/common.service';

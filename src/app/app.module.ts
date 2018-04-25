@@ -9,7 +9,7 @@ import {
 } from 'ng-zorro-antd';
 import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import {ReactiveFormsModule} from '@angular/forms';
-import {HttpService} from './base/services/http.service';
+import {HttpService} from './base/services/http/http.service';
 import {AppRoutingModule} from './app-routing.module';
 import {CommonService} from './base/services/common.service';
 import {InterceptorService} from './base/services/interceptor.service';

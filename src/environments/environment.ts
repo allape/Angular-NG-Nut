@@ -30,18 +30,18 @@ export const environment = {
       // 登录授权
       auth: {
         // 登录
-        token:          '/api/login',
+        token:          '/sys/login',
         // 登出
-        loginOut:       '/auth/loginOut/',
+        loginOut:       '/sys/loginOut/',
         // 验证码
-        captcha:        '/api/captcha'
+        captcha:        '/sys/captcha'
       },
       // 管理员
       user: {
         // 获取当前管理员信息
-        current:        '/api/sys/permission/user/current',
+        current:        '/sys/user/info',
         // 管理员分页列表
-        list:         '/api/sys/permission/user/list'
+        list:           '/sys/user/list'
       }
     },
     // 服务器响应内容

@@ -1,7 +1,7 @@
 import {Injectable, Injector} from '@angular/core';
 import {CommonService} from '../../../base/services/common.service';
 import {Utils} from '../../../base/utils/utils';
-import {HttpService} from '../../../base/services/http.service';
+import {HttpService} from '../../../base/services/http/http.service';
 import {environment} from '../../../../environments/environment';
 import {NzMessageService} from 'ng-zorro-antd';
 import {Observable} from 'rxjs/Observable';

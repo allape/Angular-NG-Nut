@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {HttpService} from '../../../../../base/services/http.service';
+import {HttpService} from '../../../../../base/services/http/http.service';
 import {CommonService} from '../../../../../base/services/common.service';
 import {Title} from '@angular/platform-browser';
 import {REGEXP, Utils} from '../../../../../base/utils/utils';
@@ -56,6 +56,9 @@ export class UserComponent extends ComponentBase implements OnInit, OnDestroy, A
     private fb:         FormBuilder,
     private modal:      NzModalService,
   ) {
+    // 初始化父类
+    super();
+
     // 设置标题
     this.title.setTitle('管理员管理');
 

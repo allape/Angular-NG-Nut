@@ -30,7 +30,7 @@ export class AdminInterceptorService implements HttpInterceptor {
     // 获取管理员Token服务
     const ats = this.cs.getRegisteredService(ADMIN_TOKEN_SERVICE_NAME);
     if (ats !== null) {
-      const token = ats.getToken('Beaer WEB ');
+      const token = ats.getToken();
       if (Utils.hasText(token)) {
         // 设置请求头
         req = req.clone({
