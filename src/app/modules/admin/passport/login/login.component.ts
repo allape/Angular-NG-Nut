@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, OnInit} from '@angular/core';
 import {Title} from '@angular/platform-browser';
 import {CommonService} from '../../../../base/services/common.service';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
@@ -19,7 +19,7 @@ import {AdminTokenService} from '../../services/token/admin-token.service';
     fadein
   ]
 })
-export class LoginComponent implements OnInit, OnDestroy {
+export class LoginComponent implements OnInit, OnDestroy, AfterViewInit {
 
   /**
    * 当前组件在自定义服务中注册器中的名称
@@ -42,7 +42,7 @@ export class LoginComponent implements OnInit, OnDestroy {
    * 验证码图片
    * @type {string}
    */
-  public verifycodeImg = '';
+  public verifycodeImg = environment.modules.admin.html.defaultImg;
 
   constructor(
     private title:      Title,
@@ -91,14 +91,16 @@ export class LoginComponent implements OnInit, OnDestroy {
     } catch (e) {
       console.error('获取localStorage的管理员登录信息失败! err:', e);
     }
-
-    // 加载验证码
-    this.loadVerfiyCodeImg();
   }
 
   ngOnDestroy(): void {
     // 解除组件
     this.cs.unregisterComponent(this.COMPONENT_NAME);
+  }
+
+  ngAfterViewInit(): void {
+    // 加载验证码
+    this.loadVerfiyCodeImg();
   }
 
   /**
