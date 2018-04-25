@@ -4,7 +4,6 @@
 // The list of which env maps to which file can be found in `.angular-cli.json`.
 
 export const environment = {
-
   // 是否为生产模式
   production: false,
 
@@ -20,42 +19,48 @@ export const environment = {
     level: 'trace'
   },
 
-  // 网络配置
-  http: {
-    // 服务器
-    // host: 'http://47.96.143.154:9090',
-    host: 'http://192.168.2.49:9999',
-    // 请求列表
-    urls: {
-      // 登录授权
-      auth: {
-        // 登录
-        token:          '/sys/login',
-        // 登出
-        loginOut:       '/sys/loginOut/',
-        // 验证码
-        captcha:        '/sys/captcha'
+  // 分模块配置
+  modules: {
+    // 管理员模块
+    admin: {
+      // 网络配置
+      http: {
+        // 服务器
+        // host: 'http://47.96.143.154:9090',
+        host: 'http://192.168.2.49:9999',
+        // 请求列表
+        urls: {
+          // 登录授权
+          auth: {
+            // 登录
+            token:          '/sys/login',
+            // 登出
+            loginOut:       '/sys/loginOut/',
+            // 验证码
+            captcha:        '/sys/captcha'
+          },
+          // 管理员
+          user: {
+            // 获取当前管理员信息
+            current:        '/sys/user/info',
+            // 管理员分页列表
+            list:           '/sys/user/list'
+          }
+        },
+        // 服务器响应内容
+        rescodes: {
+          // 完成
+          ok:               200001,
+          // 未授权登陆
+          notAuthed:        300001,
+        }
       },
-      // 管理员
-      user: {
-        // 获取当前管理员信息
-        current:        '/sys/user/info',
-        // 管理员分页列表
-        list:           '/sys/user/list'
+      // html页面使用的参数
+      html: {
+        // 默认图片
+        defaultImg: 'https://ng.ant.design/assets/img/zorro.svg',
       }
-    },
-    // 服务器响应内容
-    rescodes: {
-      // 完成
-      ok:               200001,
-      // 未授权登陆
-      notAuthed:        300001,
     }
   },
 
-  // html页面使用的参数
-  html: {
-    // 默认图片
-    defaultImg: 'https://ng.ant.design/assets/img/zorro.svg',
-  }
 };

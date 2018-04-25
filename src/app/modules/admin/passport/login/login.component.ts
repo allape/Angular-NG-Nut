@@ -106,7 +106,7 @@ export class LoginComponent implements OnInit, OnDestroy {
    */
   public loadVerfiyCodeImg() {
     // 请求网络
-    this.http.get(environment.http.urls.auth.captcha, {
+    this.http.get(environment.modules.admin.http.urls.auth.captcha, {
       notOkMsg: '获取验证码',
     }).subscribe(
       (res: any) => {
@@ -136,11 +136,11 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
 
     // 请求登录
-    this.http.post(environment.http.urls.auth.token, data, {
+    this.http.post(environment.modules.admin.http.urls.auth.token, data, {
       notOkMsg:   '登录失败',
       okResponse: false,
     }).subscribe((res: any) => {
-      if (res.code === environment.http.rescodes.ok) {
+      if (res.code === environment.modules.admin.http.rescodes.ok) {
         this.as.loginUser(res.data.token, res.data.expire).subscribe(
           () => {
             this.cs.goto(ADMIN_ROUTES.dashboard);

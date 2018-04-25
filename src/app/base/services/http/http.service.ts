@@ -19,6 +19,12 @@ export class HttpService {
   public msgHandler: IHttpMsgHandlerGlobal = new HttpMsgHandlerGlobal();
 
   /**
+   * 请求的服务器host
+   * @type {string}
+   */
+  public host = 'http://localhost:8080';
+
+  /**
    * 公共请求头数据
    * @type {{}}
    */
@@ -71,8 +77,8 @@ export class HttpService {
    * @param {string} url      操作的url
    * @returns {string}        返回拼接了的url
    */
-  private static concatWithHost(url: string): string {
-    return environment.http.host + url;
+  private concatWithHost(url: string): string {
+    return this.host + url;
   }
 
   /**
@@ -105,7 +111,7 @@ export class HttpService {
     this.loading = true;
     // 返回订阅
     return new Observable<Object>((observer) => {
-      this.http.request(method, HttpService.concatWithHost(url), options).subscribe(
+      this.http.request(method, this.concatWithHost(url), options).subscribe(
         (res: any) => {
           // 取消loading
           this.loading = false;

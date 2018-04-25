@@ -9,7 +9,6 @@ import {
 } from 'ng-zorro-antd';
 import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import {ReactiveFormsModule} from '@angular/forms';
-import {HttpService} from './base/services/http/http.service';
 import {AppRoutingModule} from './app-routing.module';
 import {CommonService} from './base/services/common.service';
 import {InterceptorService} from './base/services/interceptor.service';
@@ -37,8 +36,6 @@ import {AdminInterceptorService} from './modules/admin/admin-interceptor.service
     NzNotificationService,
     // 消息通知配置
     {provide: NZ_MESSAGE_CONFIG, useValue: {nzDuration: 3500}},
-    // 网络服务
-    HttpService,
     // 网络拦截器
     {provide: HTTP_INTERCEPTORS, useClass: InterceptorService, multi: true},
     {provide: HTTP_INTERCEPTORS, useClass: AdminInterceptorService, multi: true},

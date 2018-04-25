@@ -97,7 +97,7 @@ export class UserComponent extends ComponentBase implements OnInit, OnDestroy, A
     this.currentPage = Utils.formatPageNum(curentPage, this.currentPage);
 
     // 请求数据
-    this.http.post(environment.http.urls.user.list, {
+    this.http.post(environment.modules.admin.http.urls.user.list, {
       curentPage:           this.currentPage,
       pageRowNum:           this.pageRowNum,
       search:               this.searchForm.getRawValue(),

@@ -54,9 +54,9 @@ export class AdminService {
     // 返回订阅对象
     return new Observable<Object>((subscriber) => {
       // 获取管理员信息
-      this.http.post(environment.http.urls.user.current, null).subscribe(
+      this.http.post(environment.modules.admin.http.urls.user.current, null).subscribe(
         (res: any) => {
-          if (res.code === environment.http.rescodes.ok) {
+          if (res.code === environment.modules.admin.http.rescodes.ok) {
             // 获取数据
             this.user = Utils.referencable(res.data) ? res.data : {};
             // TODO 临时的权限
@@ -91,7 +91,7 @@ export class AdminService {
    */
   public logoutUser() {
     // TODO 登出接口需指定用户名
-    this.http.delete(HttpService.buildUrl(environment.http.urls.auth.loginOut, this.getUser()['username'])).subscribe(
+    this.http.delete(HttpService.buildUrl(environment.modules.admin.http.urls.auth.loginOut, this.getUser()['username'])).subscribe(
       () => {},
     );
     // 设置全局对象为null

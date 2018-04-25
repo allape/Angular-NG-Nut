@@ -12,8 +12,13 @@ import {AdminTokenService} from './services/token/admin-token.service';
   ],
   declarations: [],
   providers: [
+    // 网络服务
+    HttpService,
+    // 管理员服务
     AdminService,
+    // 管理员鉴权token管理服务
     AdminTokenService,
+    // 权限守卫; 没登录不让进dashboard
     PermissionGuard,
   ]
 })
@@ -23,7 +28,8 @@ export class AdminModule {
     private http:           HttpService,
   ) {
     // 初始化http.service的配置
-    this.http.msgHandler.okCode = environment.http.rescodes.ok;
+    this.http.host =                environment.modules.admin.http.host;
+    this.http.msgHandler.okCode =   environment.modules.admin.http.rescodes.ok;
   }
 
 }

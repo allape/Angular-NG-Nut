@@ -14,6 +14,12 @@ import {ADMIN_TOKEN_SERVICE_NAME} from './services/token/admin-token.service';
 @Injectable()
 export class AdminInterceptorService implements HttpInterceptor {
 
+  /**
+   * 拦截的url正则
+   * @type {RegExp}
+   */
+  private ADMIN_URL_REGEXP = /^\/sys\/.*$/;
+
   constructor(
     private injector:     Injector,
     private msg:          NzMessageService,
@@ -27,6 +33,13 @@ export class AdminInterceptorService implements HttpInterceptor {
    * @returns {Observable<HttpEvent<any>>}
    */
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    // 去掉host
+    const url = req.url.replace(environment.modules.admin.http.host, '');
+    // 然后进行匹配, 只对对应的url进行拦截; 不是的则直接放走
+    if (!this.ADMIN_URL_REGEXP.test(url)) {
+      return next.handle(req);
+    }
+
     // 获取管理员Token服务
     const ats = this.cs.getRegisteredService(ADMIN_TOKEN_SERVICE_NAME);
     if (ats !== null) {
@@ -51,8 +64,8 @@ export class AdminInterceptorService implements HttpInterceptor {
         const body = Utils.referencable(event) && Utils.referencable(event.body) ? event.body : null;
         if (body !== null) {
           switch (body.code) {
-            case environment.http.rescodes.ok: break;
-            case environment.http.rescodes.notAuthed:
+            case environment.modules.admin.http.rescodes.ok: break;
+            case environment.modules.admin.http.rescodes.notAuthed:
               this.cs.goto(ADMIN_ROUTES.login);
               break;
           }
