@@ -45,6 +45,10 @@ export const environment = {
             current:        '/sys/user/info',
             // 管理员分页列表
             list:           '/sys/user/list'
+          },
+          role: {
+            // 获取角色列表
+            list:           '/sys/role/list'
           }
         },
         // 服务器响应内容
