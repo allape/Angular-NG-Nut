@@ -80,14 +80,7 @@ export class HttpService {
    * @param {string} method     请求方法
    * @param {string} url        请求的链接
    * @param options             请求选项
-   *
-   * @param extras              额外的选项;
-   * 有效值: {
-   *  showNotOkMsg: '状态不ok时是否显示消息; 有且只有false的时候才不显示, 即undefined时也显示',
-   *  notOkMsg:     '显示的消息前缀',
-   *  okResponse:   '是否仅响应状态为ok的; 有且仅有false时才在任意状态响应'
-   * }
-   *
+   * @param extras              额外的选项
    * @returns {Observable<Object>}
    */
   public request(
@@ -108,25 +101,30 @@ export class HttpService {
     },
     extras?: IHttpMsgHandlerGlobal
   ): Observable<Object> {
+    // 开始loading
     this.loading = true;
+    // 返回订阅
     return new Observable<Object>((observer) => {
       this.http.request(method, HttpService.concatWithHost(url), options).subscribe(
         (res: any) => {
+          // 取消loading
           this.loading = false;
+
+          // 输出logo
           console.log(url, '请求完成. res: ', res);
 
-          // 检查响应内容 NOTE 可读性极差, 有问题直接删除即可
+          // 检查响应内容
           try {
-            if (
-              // 检查是否配置
-              Utils.referencable(extras)
-            ) {
+            // 检查是否配置
+            if (Utils.referencable(extras)) {
+              // 格式化数据
+              extras = this.msgHandler.format(extras);
               // 格式化消息内容
               res = typeof res === 'string' ? JSON.parse(res) : res;
               // 提示消息
               if (
                 // 检查是否提示
-                extras['showNotOkMsg'] !== false &&
+                extras.showNotOkMsg !== false &&
                 // 检查状态码是否ok
                 res[this.msgHandler.codeName] !== this.msgHandler.okCode &&
                 // 检查对应的消息级别是否存在
@@ -134,7 +132,7 @@ export class HttpService {
               ) {
                 // 调用不同级别的
                 this.msg[this.msgHandler.msgLevel](
-                  (Utils.hasText(extras['notOkMsg']) ? extras['notOkMsg'] : this.msgHandler.notOkMsg) +
+                  (Utils.hasText(extras.notOkMsg) ? extras.notOkMsg : this.msgHandler.notOkMsg) +
                   (this.msgHandler.showWithMsg ? this.msgHandler.msgSeparator + res[this.msgHandler.msgName] : '')
                 );
               }
@@ -142,7 +140,7 @@ export class HttpService {
               // 检查是否有且仅响应ok码
               if (
                 res[this.msgHandler.codeName] !== this.msgHandler.okCode &&
-                extras['okResponse'] !== false
+                extras.okResponse !== false
               ) {
                 // 如果仅仅响应ok状态, 则提示错误订阅
                 return observer.error(res);
@@ -152,15 +150,23 @@ export class HttpService {
             console.error('处理提示消息失败! err:', e);
           }
 
+          // 通知订阅者请求完成
           return observer.next(res);
         },
+        // 请求出错
         error => {
+          // 关闭loading
           this.loading = false;
+          // 输出消息
           console.error(url, '请求失败! err:', error);
+          // 通知订阅者请求出错
           return observer.error(error);
         },
+        // 订阅完成; 几乎没用
         () => {
+          // 关闭loading
           this.loading = false;
+          // 通知订阅者
           return observer.complete();
         }
       );

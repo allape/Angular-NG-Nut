@@ -42,7 +42,7 @@ export class LoginComponent implements OnInit, OnDestroy {
    * 验证码图片
    * @type {string}
    */
-  public verifycodeImg = environment.http.host + environment.http.urls.auth.captcha;
+  public verifycodeImg = '';
 
   constructor(
     private title:      Title,
@@ -51,7 +51,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     public  http:       HttpService,
     private msg:        NzMessageService,
     private as:         AdminService,
-    private ats:        AdminTokenService,
   ) {
     // 设置标题
     this.title.setTitle('管理员登录');
@@ -136,8 +135,10 @@ export class LoginComponent implements OnInit, OnDestroy {
       window.localStorage.removeItem(this.USER_REMEMBERED_KEY);
     }
 
+    // 请求登录
     this.http.post(environment.http.urls.auth.token, data, {
-      notOkMsg: '登录失败',
+      notOkMsg:   '登录失败',
+      okResponse: false,
     }).subscribe((res: any) => {
       if (res.code === environment.http.rescodes.ok) {
         this.as.loginUser(res.data.token, res.data.expire).subscribe(
@@ -146,10 +147,14 @@ export class LoginComponent implements OnInit, OnDestroy {
           },
           (e) => {
             this.msg.warning('登录失败! err: ' + e.msg);
-            // 加载验证码
+            // 刷新验证码
             this.loadVerfiyCodeImg();
           }
         );
+      } else {
+        this.msg.warning('登录失败! err: ' + res.msg);
+        // 刷新验证码
+        this.loadVerfiyCodeImg();
       }
     });
   }
