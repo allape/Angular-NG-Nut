@@ -8,6 +8,8 @@ import {HttpService} from '../../../../../base/services/http/http.service';
 import {REGEXP, Utils} from '../../../../../base/utils/utils';
 import {environment} from '../../../../../../environments/environment';
 import {ComponentBase} from '../../../../../base/component/component.base';
+import {Observable} from 'rxjs/Observable';
+import {debounceTime, map} from 'rxjs/operators';
 
 @Component({
   selector: 'app-admin-dashboard-sys-role',
@@ -41,6 +43,9 @@ export class RoleComponent extends ComponentBase implements OnInit {
   _allChecked = false;
   _indeterminate = false;
 
+  oldRoleCode = '';
+
+
   // 添加修改Ng对象
   @ViewChild('additBox')
   public additBox;
@@ -67,7 +72,34 @@ export class RoleComponent extends ComponentBase implements OnInit {
       // 角色名称
       roleName: [null, [Validators.required]],
       // 角色编码
-      roleCode: [null, [Validators.required]],
+      roleCode: [null, [Validators.required],
+        ((control: FormControl): Observable<any> => {
+          return control.valueChanges.pipe(
+            // 延时操作时间, 避免连续使用网络
+            debounceTime(500),
+            // 查询角色编码是否重复
+            map((value) => {
+              // 如果this.additTarget.id存在, 则表示是修改; 避免未修改用户名时提示'用户名已存在'
+              if (Utils.hasText(this.additForm.controls.id.value)) {
+                if (value === this.oldRoleCode) {
+                  control.setErrors(null);
+                  return;
+                }
+              }
+              // 请求网络
+              this.http.get(HttpService.buildUrl(environment.modules.admin.http.urls.role.codeExists, {roleCode: value})).subscribe(
+                (res: any) => {
+                  if (res.data === false) {
+                    // 如果重名则设置对应的参数
+                    control.setErrors({checked: true, error: true});
+                  } else {
+                    control.setErrors(null);
+                  }    // 检查通过
+                }
+              );
+            })
+          );
+        }).bind(this)],
       // 描述
       roleDesc: [null, [Validators.required]]
     });
@@ -151,12 +183,22 @@ export class RoleComponent extends ComponentBase implements OnInit {
 
   // 删除
   public del(ids?: String) {
+    console.log(ids);
     this.http.delete(HttpService.buildUrl(environment.modules.admin.http.urls.role.delete, ids)).subscribe((res: any) => {
-      for (let i = 0; i < res.data.length; i++) {
-        this.delRecursion(res.data[i]);
-      }
-      this._allChecked = false;
-    });
+
+        if (res.code !== environment.modules.admin.http.rescodes.ok) {
+          this.msg.warning(res.msg);
+        }
+
+
+        for (let i = 0; i < res.data.length; i++) {
+          this.delRecursion(res.data[i]);
+        }
+        this._allChecked = false;
+      },
+      error2 => {
+        this.msg.warning('超级管理员不能删除');
+      });
   }
 
   // 递归移除元素
