@@ -58,6 +58,6 @@ export interface IHttpMsgHandlerGlobal {
    * 格式化传入的信息, 存对应的配置则使用传入的, 没有就使用默认的值
    * @param {IHttpMsgHandlerGlobal} mh
    */
-  format(mh: IHttpMsgHandlerGlobal): IHttpMsgHandlerGlobal;
+  format?(mh: IHttpMsgHandlerGlobal): IHttpMsgHandlerGlobal;
 
 }

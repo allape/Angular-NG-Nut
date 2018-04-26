@@ -139,15 +139,18 @@ export class LoginComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // 请求登录
     this.http.post(environment.modules.admin.http.urls.auth.token, data, {
-      notOkMsg:   '登录失败',
-      okResponse: false,
+      showNotOkMsg: false,
+      okResponse:   false,
     }).subscribe((res: any) => {
       if (res.code === environment.modules.admin.http.rescodes.ok) {
+        this.cs.mask = true;
         this.as.loginUser(res.data.token, res.data.expire).subscribe(
           () => {
+            this.cs.mask = false;
             this.cs.goto(ADMIN_ROUTES.dashboard);
           },
           (e) => {
+            this.cs.mask = false;
             this.msg.warning('登录失败! err: ' + e.msg);
             // 刷新验证码
             this.loadVerfiyCodeImg();
