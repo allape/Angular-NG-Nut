@@ -38,6 +38,8 @@ export class RoleComponent extends ComponentBase implements OnInit {
     reverse: false
   };
 
+  _allChecked = false;
+  _indeterminate = false;
 
   // 添加修改Ng对象
   @ViewChild('additBox')
@@ -80,6 +82,7 @@ export class RoleComponent extends ComponentBase implements OnInit {
 
   // 加载列表数据
   public getList(currentPage: number = 1) {
+    this._allChecked = false;
     // 格式化数据
     this.currentPage = Utils.formatPageNum(currentPage, this.currentPage);
     // 获取数据
@@ -123,8 +126,6 @@ export class RoleComponent extends ComponentBase implements OnInit {
   }
 
 
-
-
   /**
    * 显示添加修改弹窗
    * @param title           标题; 默认为"标题"
@@ -148,45 +149,59 @@ export class RoleComponent extends ComponentBase implements OnInit {
   }
 
 
-
-
-
   // 删除
   public del(ids?: String) {
     this.http.delete(HttpService.buildUrl(environment.modules.admin.http.urls.role.delete, ids)).subscribe((res: any) => {
-      for (let i = 0; i < this.list.length; i++) {
-        if (this.list[i].id === ids) {
-          this.list.splice(this.list.indexOf(this.list[i]), 1);
-        }
+      for (let i = 0; i < res.data.length; i++) {
+        this.delRecursion(res.data[i]);
       }
+      this._allChecked = false;
     });
   }
 
-  _allChecked = false;
-  _indeterminate = false;
-  _displayData = [];
+  // 递归移除元素
+
+  public delRecursion(id?: String) {
+    for (let i = 0; i < this.list.length; i++) {
+      if (id === (this.list[i].id)) {
+        this.list.splice(i, 1);
+      }
+    }
+  }
+
+
+  // 批量删除
+  public batchDel() {
+    let ids = '';
+    this.list.forEach(list => {
+      if (list.checked) {
+        ids += list.id + ',';
+      }
+    });
+    this.del(ids);
+  }
 
 
   _displayDataChange($event) {
-    this._displayData = $event;
+    this.list = $event;
     this._refreshStatus();
   }
 
   _refreshStatus() {
-    const allChecked = this._displayData.every(value => value.checked === true);
-    const allUnChecked = this._displayData.every(value => !value.checked);
+    const allChecked = this.list.every(value => value.checked === true);
+    const allUnChecked = this.list.every(value => !value.checked);
     this._allChecked = allChecked;
     this._indeterminate = (!allChecked) && (!allUnChecked);
   }
 
   _checkAll(value) {
     if (value) {
-      this._displayData.forEach(data => {
-        data.checked = true;
+      this.list.forEach(list => {
+        list.checked = true;
       });
     } else {
-      this._displayData.forEach(data => {
-        data.checked = false;
+      this.list.forEach(list => {
+        list.checked = false;
       });
     }
     this._refreshStatus();

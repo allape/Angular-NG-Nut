@@ -22,6 +22,7 @@
           </nz-button-group>
 
           <button nz-button [nzType]="'primary'" [nzLoading]="http.loading" (click)="showAdditBox('创建角色');">添加</button>
+
         </div>
       </div>
 
@@ -44,13 +45,15 @@
               [(nzPageIndex)]="currentPage"
               [(nzPageSize)]="pageRowNum"
               (nzPageIndexChange)="getList()"
-              (nzPageSizeChange)="getList()">
+              (nzPageSizeChange)="getList()"
+              (nzDataChange)="_displayDataChange($event)"
+              (nzPageIndexChange)="_refreshStatus()"
+              (nzPageSizeChange)="_refreshStatus()">
       <thead nz-thead>
       <tr>
 
         <th nz-th nzCheckbox>
-          <label nz-checkbox [(ngModel)]="_allChecked" [nzIndeterminate]="_indeterminate" (ngModelChange)="_checkAll($event)">
-          </label>
+          <label nz-checkbox [(ngModel)]="_allChecked" [nzIndeterminate]="_indeterminate" (ngModelChange)="_checkAll($event)"></label>
         </th>
 
         <th nz-th><span>角色名称</span></th>
@@ -63,7 +66,7 @@
       <tr nz-tbody-tr *ngFor="let data of nzTable.data">
 
         <td nz-td nzCheckbox>
-          <label nz-checkbox [(ngModel)]="data.id" (ngModelChange)="_refreshStatus($event)">
+          <label nz-checkbox [(ngModel)]="data.checked" (ngModelChange)="_refreshStatus($event)">
           </label>
         </td>
 
@@ -78,8 +81,11 @@
           </nz-popconfirm>
         </td>
       </tr>
+
       </tbody>
+
     </nz-table>
+    <button nz-button [nzType]="'danger'" [nzLoading]="http.loading" (click)="batchDel();">批量删除</button>
   </ng-template>
 </nz-card>
 

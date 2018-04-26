@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {NgZorroAntdModule} from 'ng-zorro-antd';
+import {NgZorroAntdModule, NzCheckboxModule} from 'ng-zorro-antd';
 import {UserComponent} from './user/user.component';
 import {SysRoutingModule} from './sys-routing.module';
-import {ReactiveFormsModule} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { RoleComponent } from './role/role.component';
 
 @NgModule({
@@ -13,6 +13,7 @@ import { RoleComponent } from './role/role.component';
     // 路由
     SysRoutingModule,
     // 表单模块
+    FormsModule,
     ReactiveFormsModule,
     // ng-zorro
     NgZorroAntdModule,
