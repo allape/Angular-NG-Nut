@@ -40,9 +40,12 @@ export class RoleComponent extends ComponentBase implements OnInit {
     reverse: false
   };
 
+
+  // 全选
   _allChecked = false;
   _indeterminate = false;
 
+  // 验证 roleCode
   oldRoleCode = '';
 
 
