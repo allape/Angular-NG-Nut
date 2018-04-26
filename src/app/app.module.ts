@@ -8,7 +8,7 @@ import {
   NgZorroAntdModule, NZ_MESSAGE_CONFIG
 } from 'ng-zorro-antd';
 import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
-import {ReactiveFormsModule} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {AppRoutingModule} from './app-routing.module';
 import {CommonService} from './base/services/common.service';
 import {InterceptorService} from './base/services/interceptor.service';
@@ -26,6 +26,7 @@ import {AdminInterceptorService} from './modules/admin/admin-interceptor.service
     // 网络服务
     HttpClientModule,
     // 表单模块
+    FormsModule,
     ReactiveFormsModule,
     // zorro模块
     NgZorroAntdModule.forRoot(),
