@@ -50,7 +50,9 @@ export const environment = {
             // 获取角色列表
             list:           '/sys/role/list',
             save:           '/sys/role/save',
-            update:         '/sys/role/update'
+            update:         '/sys/role/update',
+            delete:         '/sys/role/delete/',
+            codeExists:     '/sys/role/info/codeExists',
           }
         },
         // 服务器响应内容

@@ -8,6 +8,8 @@ import {HttpService} from '../../../../../base/services/http/http.service';
 import {REGEXP, Utils} from '../../../../../base/utils/utils';
 import {environment} from '../../../../../../environments/environment';
 import {ComponentBase} from '../../../../../base/component/component.base';
+import {Observable} from 'rxjs/Observable';
+import {debounceTime, map} from 'rxjs/operators';
 
 @Component({
   selector: 'app-admin-dashboard-sys-role',
@@ -39,6 +41,14 @@ export class RoleComponent extends ComponentBase implements OnInit {
   };
 
 
+  // 全选
+  _allChecked = false;
+  _indeterminate = false;
+
+  // 验证 roleCode
+  oldRoleCode = '';
+
+
   // 添加修改Ng对象
   @ViewChild('additBox')
   public additBox;
@@ -65,7 +75,34 @@ export class RoleComponent extends ComponentBase implements OnInit {
       // 角色名称
       roleName: [null, [Validators.required]],
       // 角色编码
-      roleCode: [null, [Validators.required]],
+      roleCode: [null, [Validators.required],
+        ((control: FormControl): Observable<any> => {
+          return control.valueChanges.pipe(
+            // 延时操作时间, 避免连续使用网络
+            debounceTime(500),
+            // 查询角色编码是否重复
+            map((value) => {
+              // 如果this.additTarget.id存在, 则表示是修改; 避免未修改用户名时提示'用户名已存在'
+              if (Utils.hasText(this.additForm.controls.id.value)) {
+                if (value === this.oldRoleCode) {
+                  control.setErrors(null);
+                  return;
+                }
+              }
+              // 请求网络
+              this.http.get(HttpService.buildUrl(environment.modules.admin.http.urls.role.codeExists, {roleCode: value})).subscribe(
+                (res: any) => {
+                  if (res.data === false) {
+                    // 如果重名则设置对应的参数
+                    control.setErrors({checked: true, error: true});
+                  } else {
+                    control.setErrors(null);
+                  }    // 检查通过
+                }
+              );
+            })
+          );
+        }).bind(this)],
       // 描述
       roleDesc: [null, [Validators.required]]
     });
@@ -78,7 +115,9 @@ export class RoleComponent extends ComponentBase implements OnInit {
   }
 
 
+  // 加载列表数据
   public getList(currentPage: number = 1) {
+    this._allChecked = false;
     // 格式化数据
     this.currentPage = Utils.formatPageNum(currentPage, this.currentPage);
     // 获取数据
@@ -133,7 +172,6 @@ export class RoleComponent extends ComponentBase implements OnInit {
     } else {
       this.additForm.reset();
     }
-
     this.additModal = this.modal.open({
       title: title ? title : '标题',
       content: this.additBox,
@@ -145,5 +183,73 @@ export class RoleComponent extends ComponentBase implements OnInit {
     });
   }
 
+
+  // 删除
+  public del(ids?: String) {
+    console.log(ids);
+    this.http.delete(HttpService.buildUrl(environment.modules.admin.http.urls.role.delete, ids)).subscribe((res: any) => {
+
+        if (res.code !== environment.modules.admin.http.rescodes.ok) {
+          this.msg.warning(res.msg);
+        }
+
+
+        for (let i = 0; i < res.data.length; i++) {
+          this.delRecursion(res.data[i]);
+        }
+        this._allChecked = false;
+      },
+      (error2: any) => {
+        this.msg.warning(error2.msg);
+      });
+  }
+
+  // 递归移除元素
+
+  public delRecursion(id?: String) {
+    for (let i = 0; i < this.list.length; i++) {
+      if (id === (this.list[i].id)) {
+        this.list.splice(i, 1);
+      }
+    }
+  }
+
+
+  // 批量删除
+  public batchDel() {
+    let ids = '';
+    this.list.forEach(list => {
+      if (list.checked) {
+        ids += list.id + ',';
+      }
+    });
+    this.del(ids);
+  }
+
+
+  _displayDataChange($event) {
+    this.list = $event;
+    this._refreshStatus();
+  }
+
+  _refreshStatus() {
+    const allChecked = this.list.every(value => value.checked === true);
+    const allUnChecked = this.list.every(value => !value.checked);
+    this._allChecked = allChecked;
+    this._indeterminate = (!allChecked) && (!allUnChecked);
+  }
+
+  _checkAll(value) {
+    if (value) {
+      this.list.forEach(list => {
+        list.checked = true;
+      });
+    } else {
+      this.list.forEach(list => {
+        list.checked = false;
+      });
+    }
+    this._refreshStatus();
+  }
 
 }

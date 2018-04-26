@@ -22,6 +22,7 @@
           </nz-button-group>
 
           <button nz-button [nzType]="'primary'" [nzLoading]="http.loading" (click)="showAdditBox('创建角色');">添加</button>
+
         </div>
       </div>
 
@@ -44,9 +45,17 @@
               [(nzPageIndex)]="currentPage"
               [(nzPageSize)]="pageRowNum"
               (nzPageIndexChange)="getList()"
-              (nzPageSizeChange)="getList()">
+              (nzPageSizeChange)="getList()"
+              (nzDataChange)="_displayDataChange($event)"
+              (nzPageIndexChange)="_refreshStatus()"
+              (nzPageSizeChange)="_refreshStatus()">
       <thead nz-thead>
       <tr>
+
+        <th nz-th nzCheckbox>
+          <label nz-checkbox [(ngModel)]="_allChecked" [nzIndeterminate]="_indeterminate" (ngModelChange)="_checkAll($event)"></label>
+        </th>
+
         <th nz-th><span>角色名称</span></th>
         <th nz-th><span>角色编码</span></th>
         <th nz-th><span>角色描述</span></th>
@@ -55,6 +64,12 @@
       </thead>
       <tbody nz-tbody>
       <tr nz-tbody-tr *ngFor="let data of nzTable.data">
+
+        <td nz-td nzCheckbox>
+          <label nz-checkbox [(ngModel)]="data.checked" (ngModelChange)="_refreshStatus($event)">
+          </label>
+        </td>
+
         <td nz-td>{{data.roleName}}</td>
         <td nz-td>{{data.roleCode}}</td>
         <td nz-td>{{data.roleDesc}}</td>
@@ -66,8 +81,15 @@
           </nz-popconfirm>
         </td>
       </tr>
+
       </tbody>
+
     </nz-table>
+
+    <nz-popconfirm [nzTitle]="'确认删除?'" [nzOkText]="'确定'" [nzCancelText]="'取消'" (nzOnConfirm)="batchDel();">
+      <button nz-button [nzType]="'danger'" [nzLoading]="http.loading" nz-popconfirm>批量删除</button>
+    </nz-popconfirm>
+
   </ng-template>
 </nz-card>
 
@@ -90,14 +112,15 @@
       </div>
     </div>
 
-    <!-- 角色名称 -->
+    <!-- 角色编码 -->
     <div nz-row nz-form-item>
       <div nz-form-label nz-col [nzSpan]="6"><label nz-form-item-required>角色编码</label></div>
       <div nz-form-control nz-col [nzSpan]="18">
         <nz-input formControlName="roleCode" name="roleCode"
-                  [nzPlaceHolder]="'角色编码'" [nzType]="'text'" [nzSize]="'large'"></nz-input>
+                  [nzPlaceHolder]="'角色编码'" [nzType]="'text'" [nzSize]="'large'"  [nzReadonly] = "additForm.controls.id.value !== null" ></nz-input>
         <ng-container *ngIf="fc(additForm, 'roleCode').dirty || fc(additForm, 'roleCode').touched">
           <p nz-form-explain *ngIf="fc(additForm, 'roleCode').errors?.required">请输入角色编码</p>
+          <p nz-form-explain *ngIf="fc(additForm, 'roleCode').errors?.checked">已存在该角色编码</p>
         </ng-container>
       </div>
     </div>
@@ -115,7 +138,7 @@
     </div>
 
     <div nz-row class="buttons">
-      <button nz-button [nzSize]="'large'" [nzType]="'primary'" [nzLoading]="http.loading" (click)="saveOrUpdate()">确定</button>
+      <button nz-button [nzSize]="'large'" [nzType]="'primary'" [nzLoading]="http.loading" (click)="saveOrUpdate()" [disabled]="additForm.invalid">确定</button>
       <button nz-button [nzSize]="'large'" [nzType]="'default'" [nzLoading]="http.loading" (click)="additModal.destroy();">取消</button>
     </div>
 
