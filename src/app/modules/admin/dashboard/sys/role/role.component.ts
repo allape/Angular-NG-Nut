@@ -199,8 +199,8 @@ export class RoleComponent extends ComponentBase implements OnInit {
         }
         this._allChecked = false;
       },
-      error2 => {
-        this.msg.warning('超级管理员不能删除');
+      (error2: any) => {
+        this.msg.warning(error2.msg);
       });
   }
 
