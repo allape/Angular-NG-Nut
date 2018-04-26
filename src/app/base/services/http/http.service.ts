@@ -86,7 +86,7 @@ export class HttpService {
    * @param {string} method     请求方法
    * @param {string} url        请求的链接
    * @param options             请求选项
-   * @param extras              额外的选项
+   * @param msgHandler          消息处理配置
    * @returns {Observable<Object>}
    */
   public request(
@@ -105,7 +105,7 @@ export class HttpService {
       reportProgress?: boolean;
       withCredentials?: boolean;
     },
-    extras?: IHttpMsgHandlerGlobal
+    msgHandler?: IHttpMsgHandlerGlobal
   ): Observable<Object> {
     // 开始loading
     this.loading = true;
@@ -122,15 +122,15 @@ export class HttpService {
           // 检查响应内容
           try {
             // 检查是否配置
-            if (Utils.referencable(extras)) {
+            if (Utils.referencable(msgHandler)) {
               // 格式化数据
-              extras = this.msgHandler.format(extras);
+              msgHandler = this.msgHandler.format(msgHandler);
               // 格式化消息内容
               res = typeof res === 'string' ? JSON.parse(res) : res;
               // 提示消息
               if (
                 // 检查是否提示
-                extras.showNotOkMsg !== false &&
+                msgHandler.showNotOkMsg !== false &&
                 // 检查状态码是否ok
                 res[this.msgHandler.codeName] !== this.msgHandler.okCode &&
                 // 检查对应的消息级别是否存在
@@ -138,7 +138,7 @@ export class HttpService {
               ) {
                 // 调用不同级别的
                 this.msg[this.msgHandler.msgLevel](
-                  (Utils.hasText(extras.notOkMsg) ? extras.notOkMsg : this.msgHandler.notOkMsg) +
+                  (Utils.hasText(msgHandler.notOkMsg) ? msgHandler.notOkMsg : this.msgHandler.notOkMsg) +
                   (this.msgHandler.showWithMsg ? this.msgHandler.msgSeparator + res[this.msgHandler.msgName] : '')
                 );
               }
@@ -146,7 +146,7 @@ export class HttpService {
               // 检查是否有且仅响应ok码
               if (
                 res[this.msgHandler.codeName] !== this.msgHandler.okCode &&
-                extras.okResponse !== false
+                msgHandler.okResponse !== false
               ) {
                 // 如果仅仅响应ok状态, 则提示错误订阅
                 return observer.error(res);
@@ -181,44 +181,44 @@ export class HttpService {
 
   /**
    * 发送post请求
-   * @param url       请求的链接
-   * @param body      请求体
-   * @param extras    额外参数
+   * @param url        请求的链接
+   * @param body       请求体
+   * @param msgHandler 消息处理配置
    * @returns {Observable<Object>}
    */
-  public post(url: string, body: any | null, extras?: any): Observable<Object> {
-    return this.request('post', url, {body: body, headers: this.headers}, extras);
+  public post(url: string, body: any | null, msgHandler?: IHttpMsgHandlerGlobal): Observable<Object> {
+    return this.request('post', url, {body: body, headers: this.headers}, msgHandler);
   }
 
   /**
    * 发送get请求
    * @param {string} url              请求的链接
-   * @param extras                    额外参数
+   * @param msgHandler                消息处理配置
    * @returns {Observable<Object>}
    */
-  public get(url: string, extras?: any): Observable<Object> {
-    return this.request('get', url, {headers: this.headers}, extras);
+  public get(url: string, msgHandler?: IHttpMsgHandlerGlobal): Observable<Object> {
+    return this.request('get', url, {headers: this.headers}, msgHandler);
   }
 
   /**
    * 发送delete请求
    * @param {string} url              请求的链接
-   * @param extras                    额外参数
+   * @param msgHandler                消息处理配置
    * @returns {Observable<Object>}
    */
-  public delete(url: string, extras?: any): Observable<Object> {
-    return this.request('delete', url, {headers: this.headers}, extras);
+  public delete(url: string, msgHandler?: IHttpMsgHandlerGlobal): Observable<Object> {
+    return this.request('delete', url, {headers: this.headers}, msgHandler);
   }
 
   /**
    * 发送put请求
    * @param {string} url              请求的链接
    * @param body                      请求的数据
-   * @param extras                    额外参数
+   * @param msgHandler                消息处理配置
    * @returns {Observable<Object>}
    */
-  public put(url: string, body: any, extras?: any): Observable<Object> {
-    return this.request('put', url, {body: body, headers: this.headers}, extras);
+  public put(url: string, body: any, msgHandler?: IHttpMsgHandlerGlobal): Observable<Object> {
+    return this.request('put', url, {body: body, headers: this.headers}, msgHandler);
   }
 
 }
