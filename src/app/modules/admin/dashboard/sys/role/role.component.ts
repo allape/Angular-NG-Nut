@@ -74,6 +74,7 @@ export class RoleComponent extends ComponentBase implements OnInit {
   }
 
   ngOnInit() {
+    this.getList();
   }
 
 
@@ -105,8 +106,19 @@ export class RoleComponent extends ComponentBase implements OnInit {
    */
   public saveOrUpdate() {
     const role = this.additForm.getRawValue();
-     //if (Utils.hasText(role.id) )
 
+    this.http.post(Utils.hasText(role.id) ? environment.modules.admin.http.urls.role.update : environment.modules.admin.http.urls.role.save, role).subscribe((res: any) => {
+      this.additModal.destroy();
+      if (Utils.hasText(role.id)) {
+        for (let i = 0; i < this.list.length; i++) {
+          if (this.list[i].id === res.data.id) {
+            this.list.splice(i, 1, res.data);
+          }
+        }
+      } else {
+        this.list.push(res.data);
+      }
+    });
   }
 
 

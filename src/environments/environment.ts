@@ -48,7 +48,9 @@ export const environment = {
           },
           role: {
             // 获取角色列表
-            list:           '/sys/role/list'
+            list:           '/sys/role/list',
+            save:           '/sys/role/save',
+            update:         '/sys/role/update'
           }
         },
         // 服务器响应内容
