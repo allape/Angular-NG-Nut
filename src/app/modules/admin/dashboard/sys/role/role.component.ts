@@ -78,6 +78,7 @@ export class RoleComponent extends ComponentBase implements OnInit {
   }
 
 
+  // 加载列表数据
   public getList(currentPage: number = 1) {
     // 格式化数据
     this.currentPage = Utils.formatPageNum(currentPage, this.currentPage);
@@ -122,6 +123,8 @@ export class RoleComponent extends ComponentBase implements OnInit {
   }
 
 
+
+
   /**
    * 显示添加修改弹窗
    * @param title           标题; 默认为"标题"
@@ -133,7 +136,6 @@ export class RoleComponent extends ComponentBase implements OnInit {
     } else {
       this.additForm.reset();
     }
-
     this.additModal = this.modal.open({
       title: title ? title : '标题',
       content: this.additBox,
@@ -145,5 +147,49 @@ export class RoleComponent extends ComponentBase implements OnInit {
     });
   }
 
+
+
+
+
+  // 删除
+  public del(ids?: String) {
+    this.http.delete(HttpService.buildUrl(environment.modules.admin.http.urls.role.delete, ids)).subscribe((res: any) => {
+      for (let i = 0; i < this.list.length; i++) {
+        if (this.list[i].id === ids) {
+          this.list.splice(this.list.indexOf(this.list[i]), 1);
+        }
+      }
+    });
+  }
+
+  _allChecked = false;
+  _indeterminate = false;
+  _displayData = [];
+
+
+  _displayDataChange($event) {
+    this._displayData = $event;
+    this._refreshStatus();
+  }
+
+  _refreshStatus() {
+    const allChecked = this._displayData.every(value => value.checked === true);
+    const allUnChecked = this._displayData.every(value => !value.checked);
+    this._allChecked = allChecked;
+    this._indeterminate = (!allChecked) && (!allUnChecked);
+  }
+
+  _checkAll(value) {
+    if (value) {
+      this._displayData.forEach(data => {
+        data.checked = true;
+      });
+    } else {
+      this._displayData.forEach(data => {
+        data.checked = false;
+      });
+    }
+    this._refreshStatus();
+  }
 
 }
