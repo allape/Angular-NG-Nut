@@ -125,34 +125,34 @@ export class HttpService {
             msgHandler = this.msgHandler.format(msgHandler ? msgHandler : {});
             // 格式化消息内容
             res = typeof res === 'string' ? JSON.parse(res) : res;
-            // 提示消息
-            if (
-              // 检查消息体内容
-              Utils.referencable(res) &&
-              // 检查是否提示
-              msgHandler.showNotOkMsg !== false &&
-              // 检查状态码是否ok
-              res[msgHandler.codeName] !== msgHandler.okCode &&
-              // 检查对应的消息级别是否存在
-              Utils.referencable(this.msg[msgHandler.msgLevel])
-            ) {
-              // 调用不同级别的
-              this.msg[this.msgHandler.msgLevel](
-                msgHandler.notOkMsg +
-                (msgHandler.showWithMsg ? msgHandler.msgSeparator + res[msgHandler.msgName] : '')
-              );
-            }
-
-            // 检查是否有且仅响应ok码
-            if (
-              res[msgHandler.codeName] !== msgHandler.okCode &&
-              msgHandler.okResponse !== false
-            ) {
-              // 如果仅仅响应ok状态, 则提示错误订阅
-              return observer.error(res);
-            }
           } catch (e) {
             console.error('处理提示消息失败! err:', e);
+          }
+          // 提示消息
+          if (
+            // 检查消息体内容
+            Utils.referencable(res) &&
+            // 检查是否提示
+            msgHandler.showNotOkMsg !== false &&
+            // 检查状态码是否ok
+            res[msgHandler.codeName] !== msgHandler.okCode &&
+            // 检查对应的消息级别是否存在
+            Utils.referencable(this.msg[msgHandler.msgLevel])
+          ) {
+            // 调用不同级别的
+            this.msg[this.msgHandler.msgLevel](
+              msgHandler.notOkMsg +
+              (msgHandler.showWithMsg ? msgHandler.msgSeparator + res[msgHandler.msgName] : '')
+            );
+          }
+
+          // 检查是否有且仅响应ok码
+          if (
+            res[msgHandler.codeName] !== msgHandler.okCode &&
+            msgHandler.okResponse !== false
+          ) {
+            // 如果仅仅响应ok状态, 则提示错误订阅
+            return observer.error(res);
           }
 
           // 通知订阅者请求完成
