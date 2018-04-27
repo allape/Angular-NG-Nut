@@ -83,13 +83,13 @@ export class AdminTokenService {
       setTimeout(
         () => {
           // 请求续租
-          this.http.post('', null).subscribe(
+          /*this.http.post('', null).subscribe(
             (res: any) => {
               if (Utils.referencable(res.data)) {
                 this.setToken(res.data.token, res.data.expire);
               }
             }
-          );
+          );*/
         }
       );
     }
