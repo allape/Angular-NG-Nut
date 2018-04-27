@@ -187,20 +187,11 @@ export class RoleComponent extends ComponentBase implements OnInit {
   // 删除
   public del(ids?: String) {
     console.log(ids);
-    this.http.delete(HttpService.buildUrl(environment.modules.admin.http.urls.role.delete, ids)).subscribe((res: any) => {
-
-        if (res.code !== environment.modules.admin.http.rescodes.ok) {
-          this.msg.warning(res.msg);
-        }
-
-
+    this.http.delete(HttpService.buildUrl(environment.modules.admin.http.urls.role.delete, ids), { notOkMsg: '', msgSeparator: ''}).subscribe((res: any) => {
         for (let i = 0; i < res.data.length; i++) {
           this.delRecursion(res.data[i]);
         }
         this._allChecked = false;
-      },
-      (error2: any) => {
-        this.msg.warning(error2.msg);
       });
   }
 
