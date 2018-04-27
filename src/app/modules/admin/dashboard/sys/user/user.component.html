@@ -72,7 +72,7 @@
           <td nz-td>{{data.realname}}</td>
           <td nz-td>{{data.phone}}</td>
           <td nz-td>部门信息</td>
-          <td nz-td>角色信息</td>
+          <td nz-td> {{data.roleNames}}</td>
           <td nz-td>{{data.sex === 0 ? '女士' : '先生'}}</td>
 
           <td nz-td [ngSwitch]="data.userStatus">

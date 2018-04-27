@@ -65,7 +65,7 @@ export class UserComponent extends ComponentBase implements OnInit, OnDestroy, A
               private title: Title,
               private msg: NzMessageService,
               private fb: FormBuilder,
-              private modal: NzModalService, ) {
+              private modal: NzModalService,) {
     // 初始化父类
     super();
 
@@ -83,13 +83,14 @@ export class UserComponent extends ComponentBase implements OnInit, OnDestroy, A
       // 电话
       phone: [null, [Validators.required, Validators.pattern(REGEXP.CHINA_PHONE)]],
       // 角色id集合
-      roleIdList: [null, ]
+      roleIdList: [null,]
     });
   }
 
   ngOnInit() {
     this.cs.registerComponent(this.COMPONENT_NAME, this);
     this.loadRoles();
+
   }
 
   ngOnDestroy(): void {
@@ -98,7 +99,7 @@ export class UserComponent extends ComponentBase implements OnInit, OnDestroy, A
 
   ngAfterViewInit(): void {
     // 加载列表
-    this.getList();
+    // this.getList();
   }
 
   /**
@@ -118,6 +119,25 @@ export class UserComponent extends ComponentBase implements OnInit, OnDestroy, A
     }, {notOkMsg: '加载用户列表失败'}).subscribe(
       (res: any) => {
         this.list = res.data.data;
+        // 替换角色
+
+        // 循环用户列表
+        for (const l of this.list) {
+          const roleNames = [];
+          l.roleIdList  = l.roleIds.split(',');
+          // 循环用户角色
+          for (const r of l.roleIdList) {
+            // 循环角色列表
+            for (const rl of this.roleList) {
+              if (r === rl.value) {
+                roleNames.push(rl.label);
+              }
+            }
+          }
+          l.roleNames = roleNames.join(',');
+        }
+
+
         this.currentPage = res.data['currentPage'];
         this.pageRowNum = res.data['pageSize'];
         this.totalRecords = res.data['totalRecords'];
@@ -133,8 +153,24 @@ export class UserComponent extends ComponentBase implements OnInit, OnDestroy, A
   public showAdditBox(title?: string, data?: any) {
     if (Utils.referencable(data)) {
       this.additForm.patchValue(data);
+      // 回显角色
+      for (const role of this.roleList) {  // 原始角色列表
+        let checked = false;
+        for (const ur of data.roleIdList) {  // 用户角色列表
+          if (ur === role.value) {
+            checked = true ;
+          }
+        }
+        role.checked = checked;
+      }
+
     } else {
       this.additForm.reset();
+
+      for (const role of this.roleList) {  // 原始角色列表
+        role.checked = false;
+      }
+
     }
 
     this.additModal = this.modal.open({
@@ -152,7 +188,6 @@ export class UserComponent extends ComponentBase implements OnInit, OnDestroy, A
   // 创建或更新用户
   public saveOrUpdate() {
     const user = this.additForm.getRawValue();
-    console.log(user);
     user.roleIdList = [];
     for (const role of this.roleList) {
       if (role.checked) {
@@ -255,6 +290,9 @@ export class UserComponent extends ComponentBase implements OnInit, OnDestroy, A
         this.roleList.push({label: role.roleName, value: role.id});
       }
     });
+
+    // 加载用户列表 loading所有按钮
+    this.getList();
   }
 
 
