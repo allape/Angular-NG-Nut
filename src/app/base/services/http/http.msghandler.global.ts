@@ -14,8 +14,8 @@ export class HttpMsgHandlerGlobal implements IHttpMsgHandlerGlobal {
   public okResponse =         true;
 
   public format(mh: IHttpMsgHandlerGlobal): IHttpMsgHandlerGlobal {
-    const handler = {};
-    for (const k in this) {
+    const handler = new HttpMsgHandlerGlobal();
+    for (const k in handler) {
       if (Utils.referencable(mh[k])) {
         handler[k] = mh[k];
       } else {
