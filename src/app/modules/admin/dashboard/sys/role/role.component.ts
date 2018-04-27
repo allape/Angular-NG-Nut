@@ -186,7 +186,6 @@ export class RoleComponent extends ComponentBase implements OnInit {
 
   // 删除
   public del(ids?: String) {
-    console.log(ids);
     this.http.delete(HttpService.buildUrl(environment.modules.admin.http.urls.role.delete, ids), { notOkMsg: '', msgSeparator: ''}).subscribe((res: any) => {
         for (let i = 0; i < res.data.length; i++) {
           this.delRecursion(res.data[i]);
@@ -196,7 +195,6 @@ export class RoleComponent extends ComponentBase implements OnInit {
   }
 
   // 递归移除元素
-
   public delRecursion(id?: String) {
     for (let i = 0; i < this.list.length; i++) {
       if (id === (this.list[i].id)) {

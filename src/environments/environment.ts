@@ -44,14 +44,28 @@ export const environment = {
             // 获取当前管理员信息
             current:        '/sys/user/info',
             // 管理员分页列表
-            list:           '/sys/user/list'
+            list:           '/sys/user/list',
+            // 删除管理员
+            delete:         '/sys/user/delete/',
+            // 创建用户
+            add:            '/sys/user/add',
+            // 根据userId 或者userName查询用户
+            findOne:        '/sys/user/findOne',
+            // 更新用户
+            update:         '/sys/user/update'
           },
           role: {
-            // 获取角色列表
+            // 获取角色列表查询分页
             list:           '/sys/role/list',
+            // 获取列表不分页
+            select:         '/sys/role/select',
+            // 创建角色
             save:           '/sys/role/save',
+            // 更新角色
             update:         '/sys/role/update',
+            // 删除角色
             delete:         '/sys/role/delete/',
+            // 验证角色编码是否存在
             codeExists:     '/sys/role/info/codeExists',
           }
         },
