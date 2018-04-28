@@ -1,0 +1,76 @@
+<div nz-row [nzGutter]="16">
+
+
+  <div nz-col [nzMd]="10">
+    <nz-card nzTitle="组织机构">
+      <ng-template #body>
+        <div style="text-align: right;">
+          <button nz-button [nzType]="'primary'" [nzLoading]="http.loading" (click)="createDept();" style="z-index: 3"> 创建机构 </button>
+        </div>
+        <div style="margin-top: -30px">  <nz-tree #tree [nzNodes]="nodes" (nzActivate)="onActivate($event)"></nz-tree></div>
+
+      </ng-template>
+    </nz-card>
+  </div>
+
+
+  <div nz-col [nzMd]="14">
+    <form nz-form [formGroup]="additForm">
+      <nz-card nzTitle="组织机构" [nzLoading]="!isShow">
+        <nz-input formControlName="id" name="id" [nzType]="'hidden'"></nz-input>
+        <nz-input formControlName="parentId" name="parentId" [nzType]="'hidden'"></nz-input>
+        <ng-template #body>
+          <div nz-row nz-form-item class="mb-sm">
+
+            <div nz-form-label nz-col [nzSm]="4"><label>组织结构名称</label></div>
+            <div nz-form-control nz-col [nzSm]="8" nzHasFeedback>
+              <nz-input formControlName="name" name="name" [nzType]="'text'" [nzSize]="'large'">
+              </nz-input>
+              <ng-container *ngIf="fc(additForm, 'name').dirty || fc(additForm, 'name').touched">
+                <p nz-form-explain *ngIf="fc(additForm, 'name').errors?.required">请输入组织结构名称</p>
+              </ng-container>
+
+            </div>
+
+            <div nz-form-label nz-col [nzSm]="4"><label>父组织名称</label></div>
+
+            <div nz-form-control nz-col [nzSm]="8">
+              <nz-input formControlName="parentName" name="parentName" [nzType]="'text'" [nzSize]="'large'" nzReadonly
+                        (click)="showAdditBox('选择组织机构');" nzHasFeedback>
+              </nz-input>
+              <ng-container *ngIf="fc(additForm, 'parentName').dirty || fc(additForm, 'parentName').touched">
+                <p nz-form-explain *ngIf="fc(additForm, 'parentId').errors?.checked">当前机构不能是自己的父机构</p>
+              </ng-container>
+            </div>
+
+          </div>
+
+          <div nz-row nz-form-item class="mb-sm">
+            <div nz-form-label nz-col [nzSm]="4"><label>排序号</label></div>
+            <div nz-form-control nz-col [nzSm]="8">
+              <nz-input formControlName="orderNum" name="orderNum" [nzType]="'text'" [nzSize]="'large'">
+              </nz-input>
+            </div>
+          </div>
+
+          <div nz-row nz-form-item class="mb-sm">
+            <div nz-col [nzSpan]="22" style="text-align: right">
+              <button nz-button [nzType]="'primary'" [nzLoading]="http.loading" (click)="saveOrUpateDept();" [disabled]="additForm.invalid">保存</button>
+
+              <button nz-button [nzType]="'danger'" [nzLoading]="http.loading" (click)="delDept();" >删除</button>
+            </div>
+          </div>
+
+
+        </ng-template>
+      </nz-card>
+    </form>
+  </div>
+
+</div>
+
+
+<!-- 添加修改 -->
+<ng-template #additBox>
+  <nz-tree #tree [nzNodes]="nodes" (nzActivate)="onActivateUpdate($event)"></nz-tree>
+</ng-template>

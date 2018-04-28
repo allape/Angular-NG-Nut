@@ -67,7 +67,16 @@ export const environment = {
             delete:         '/sys/role/delete/',
             // 验证角色编码是否存在
             codeExists:     '/sys/role/info/codeExists',
+          },
+
+          dept: {
+            // 获取组织机构列表
+            list:            '/sys/dept/list',
+            update:          '/sys/dept/update',
+            save:            '/sys/dept/save',
+            delete:            '/sys/dept/delete/'
           }
+
         },
         // 服务器响应内容
         rescodes: {

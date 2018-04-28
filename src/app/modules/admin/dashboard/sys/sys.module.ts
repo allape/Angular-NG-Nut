@@ -5,6 +5,8 @@ import {UserComponent} from './user/user.component';
 import {SysRoutingModule} from './sys-routing.module';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { RoleComponent } from './role/role.component';
+import { DeptComponent } from './dept/dept.component';
+import {NzTreeModule} from 'ng-tree-antd';
 
 @NgModule({
   imports: [
@@ -17,10 +19,14 @@ import { RoleComponent } from './role/role.component';
     ReactiveFormsModule,
     // ng-zorro
     NgZorroAntdModule,
+    // 树
+    NzTreeModule,
+
   ],
   declarations: [
     UserComponent,
-    RoleComponent
+    RoleComponent,
+    DeptComponent
   ]
 })
 export class SysModule { }
