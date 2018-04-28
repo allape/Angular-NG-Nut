@@ -41,32 +41,78 @@
               [(nzPageIndex)]="currentPage"
               [(nzPageSize)]="pageRowNum"
               (nzPageIndexChange)="getList()"
-              (nzPageSizeChange)="getList()">
+              (nzPageSizeChange)="getList()"
+              (nzDataChange)="_displayDataChange($event)"
+              (nzPageIndexChange)="_refreshStatus()"
+              (nzPageSizeChange)="_refreshStatus()">
       <thead nz-thead>
         <tr>
+          <th nz-th nzCheckbox>
+            <label nz-checkbox [(ngModel)]="_allChecked" [nzIndeterminate]="_indeterminate" (ngModelChange)="_checkAll($event)"></label>
+          </th>
           <th nz-th><span>账号</span></th>
           <th nz-th><span>姓名</span></th>
           <th nz-th><span>电话</span></th>
+          <th nz-th><span>所属部门</span></th>
+          <th nz-th><span>角色</span></th>
           <th nz-th><span>性别</span></th>
-          <th nz-th style="width: 10%;"><span>操作</span></th>
+          <th nz-th><span>状态</span></th>
+          <th nz-th><span>操作</span></th>
         </tr>
       </thead>
       <tbody nz-tbody>
         <tr nz-tbody-tr *ngFor="let data of nzTable.data">
+
+          <td nz-td nzCheckbox>
+            <label nz-checkbox [(ngModel)]="data.checked" (ngModelChange)="_refreshStatus($event)">
+            </label>
+          </td>
+
           <td nz-td>{{data.username}}</td>
           <td nz-td>{{data.realname}}</td>
           <td nz-td>{{data.phone}}</td>
+          <td nz-td>部门信息</td>
+          <td nz-td> {{data.roleNames}}</td>
           <td nz-td>{{data.sex === 0 ? '女士' : '先生'}}</td>
-          <td nz-td>
-            <a (click)="showAdditBox('修改 - ' + data.username, data);">编辑</a>
+
+          <td nz-td [ngSwitch]="data.userStatus">
+            <nz-dropdown [nzTrigger]="'click'">
+              <a  class="ant-dropdown-link" nz-dropdown>
+                <span class="user-status-span user-status-normal" *ngSwitchCase="1">正常</span>
+                <span class="user-status-span user-status-deny" *ngSwitchCase="0">冻结</span>
+                <span class="user-status-span user-status-unknown" *ngSwitchDefault>未知</span>
+                 <i class="anticon anticon-down"></i>
+              </a>
+              <ul nz-menu>
+                <li nz-menu-item (click)="updateUserStatus(data.userStatus,'0')"><span class="user-status-span user-status-deny">冻结</span></li>
+                <li nz-menu-item (click)="updateUserStatus(data.userStatus,'1')"><span class="user-status-span user-status-normal">正常</span></li>
+                <li nz-menu-item (click)="updateUserStatus(data.userStatus,'')"><span class="user-status-span user-status-unknown">未知</span></li>
+              </ul>
+           </nz-dropdown>
+          </td>
+
+
+
+          <td nz-td class="table-buttons">
+            <a class="table-btn-edit" (click)="showAdditBox('修改 - ' + data.username, data);">编辑</a>
             <span nz-table-divider></span>
+
+            <nz-popconfirm [nzTitle]="'确定重置该用户密码?'" [nzOkText]="'确定'" [nzCancelText]="'取消'" (nzOnConfirm)="resetPw(data.id);">
+              <a class="table-btn-reset" nz-popconfirm>重置密码</a>
+            </nz-popconfirm>
+
+            <span nz-table-divider></span>
+
             <nz-popconfirm [nzTitle]="'确认删除?'" [nzOkText]="'确定'" [nzCancelText]="'取消'" (nzOnConfirm)="del(data.id);">
-              <a nz-popconfirm>删除</a>
+              <a class="table-btn-del" nz-popconfirm>删除</a>
             </nz-popconfirm>
           </td>
         </tr>
       </tbody>
     </nz-table>
+    <nz-popconfirm [nzTitle]="'确认删除?'" [nzOkText]="'确定'" [nzCancelText]="'取消'" (nzOnConfirm)="batchDel();">
+      <button nz-button [nzType]="'danger'" [nzLoading]="http.loading" nz-popconfirm>批量删除</button>
+    </nz-popconfirm>
   </ng-template>
 </nz-card>
 
@@ -84,6 +130,7 @@
         <ng-container *ngIf="fc(additForm, 'username').dirty || fc(additForm, 'username').touched">
           <p nz-form-explain *ngIf="fc(additForm, 'username').errors?.required">请输入管理员的账号</p>
           <p nz-form-explain *ngIf="fc(additForm, 'username').errors?.pattern">请输入正确格式的账号</p>
+          <p nz-form-explain *ngIf="fc(additForm, 'username').errors?.checked">当期账号已存在</p>
         </ng-container>
       </div>
     </div>
@@ -114,8 +161,17 @@
       </div>
     </div>
 
+
+    <!-- 角色选择 -->
+    <div nz-row nz-form-item>
+      <div nz-form-label nz-col [nzSpan]="6"><label>角色</label></div>
+      <div nz-form-control nz-col [nzSpan]="18">
+        <nz-checkbox-group formControlName="roleIdList" name="roleIdList" [(ngModel)]="roleList"></nz-checkbox-group>
+      </div>
+    </div>
+
     <div nz-row class="buttons">
-      <button nz-button [nzSize]="'large'" [nzType]="'primary'" [nzLoading]="http.loading">确定</button>
+      <button nz-button [nzSize]="'large'" [nzType]="'primary'" [nzLoading]="http.loading" (click)="saveOrUpdate()" [disabled]="additForm.invalid">确定</button>
       <button nz-button [nzSize]="'large'" [nzType]="'default'" [nzLoading]="http.loading" (click)="additModal.destroy();">取消</button>
     </div>
 

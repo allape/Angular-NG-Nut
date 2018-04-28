@@ -1,0 +1,32 @@
+.table-buttons  a {
+  padding: 3px 8px;
+  color: #ffffff;
+  border-radius: 4px;
+}
+
+.table-btn-edit {
+  background: #39bc77;
+}
+.table-btn-reset {
+  background: #aeaeae;
+}
+.table-btn-del {
+  background: #bc5f60;
+}
+
+
+.user-status-span {
+  padding: 3px 8px;
+  color: #ffffff;
+  border-radius: 4px;
+}
+.user-status-normal {
+  background: #39bc77;
+}
+.user-status-deny {
+  background: #bc5f60;
+}
+
+.user-status-unknown {
+  background: #aeaeae;
+}
