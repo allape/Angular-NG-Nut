@@ -406,6 +406,14 @@ export class UserComponent extends ComponentBase implements OnInit, OnDestroy, A
     this.http.post(environment.modules.admin.http.urls.user.resetPw, id).subscribe((res: any) => {
       this.msg.success(`重置密码成功!!!`);
     });
+  }
+
+  // 重置用户状态
+  public updateUserStatus(data: any, status: number) {
+    data.userStatus = status;
+    this.http.post(environment.modules.admin.http.urls.user.update, data).subscribe((res: any) => {
+      this.msg.success(`更新状态成功!!!`);
+    });
 
   }
 
