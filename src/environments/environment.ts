@@ -70,15 +70,19 @@ export const environment = {
             // 验证角色编码是否存在
             codeExists:     '/sys/role/info/codeExists',
           },
-
+          // 部门
           dept: {
             // 获取组织机构列表
             list:            '/sys/dept/list',
             update:          '/sys/dept/update',
             save:            '/sys/dept/save',
-            delete:            '/sys/dept/delete/'
+            delete:          '/sys/dept/delete/'
+          },
+          // 菜单
+          menu: {
+            // 获取菜单列表
+            list:           '/sys/menu/list'
           }
-
         },
         // 服务器响应内容
         rescodes: {

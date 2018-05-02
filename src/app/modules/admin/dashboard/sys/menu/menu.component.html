@@ -1,0 +1,45 @@
+<!-- 刷新按钮 -->
+<nz-card @fadein style="margin-bottom: 20px;" *ngIf="showRefreshBtn">
+  <ng-template #body>
+    <button nz-button [nzSize]="'large'" [nzType]="'primary'" (click)="getList();" [nzLoading]="http.loading"
+            *ngIf="showRefreshBtn">刷新</button>
+  </ng-template>
+</nz-card>
+
+<!-- 树形列表以及添加修改框 -->
+<div @fadein nz-row [nzGutter]="10">
+
+  <div nz-col [nzSpan]="8">
+    <nz-card class="menu-box" [nzNoHovering]="true">
+      <ng-template #body>
+        <nz-tree #tree [nzNodes]="list" (nzActivate)="onListMenuSelected($event)"></nz-tree>
+      </ng-template>
+    </nz-card>
+  </div>
+
+  <div nz-col [nzSpan]="16">
+    <nz-card class="menu-box" [nzNoHovering]="true">
+      <ng-template #body>
+        <form nz-form [formGroup]="additForm" *ngIf="showAdditContent" @flyIn>
+          <nz-input formControlName="id" name="id" [nzType]="'hidden'"></nz-input>
+          <nz-input formControlName="parentId" name="parentId" [nzType]="'hidden'"></nz-input>
+
+          <!-- 菜单名称 -->
+          <div nz-row nz-form-item>
+            <div nz-form-label nz-col [nzSpan]="6"><label nz-form-item-required>名称</label></div>
+            <div nz-form-control nz-col [nzSpan]="18">
+              <nz-input formControlName="menuName" name="menuName" [nzType]="'text'" [nzSize]="'large'"></nz-input>
+              <ng-container *ngIf="dot(additForm, 'menuName')">
+                <p nz-form-explain *ngIf="fc(additForm, 'menuName').errors?.required">请输入菜单的名称</p>
+              </ng-container>
+            </div>
+          </div>
+
+        </form>
+      </ng-template>
+    </nz-card>
+  </div>
+
+</div>
+
+
