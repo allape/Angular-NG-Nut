@@ -6,7 +6,6 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {CommonService} from '../../../../../base/services/common.service';
 import {environment} from '../../../../../../environments/environment';
 import {ComponentBase} from '../../../../../base/component/component.base';
-import {environment} from '../../../../../../environments/environment';
 import {Utils} from '../../../../../base/utils/utils';
 
 @Component({
@@ -18,7 +17,6 @@ export class DeptComponent extends ComponentBase implements OnInit {
 
 
   @ViewChild('tree') tree; // 获取树的结构
-
   public nodes = [];  // 节点
 
   // 添加修改form
@@ -78,7 +76,7 @@ export class DeptComponent extends ComponentBase implements OnInit {
    * @param {string} pid  父级菜单Id
    * @param data //所有数据dept list
    */
-  public dealWithListToTree(pid: string, data: Array) {
+  public dealWithListToTree(pid: string, data: Array<any>) {
     const children = [];
     for (let i = 0; i < data.length; i++) {
       const dept = data[i];
@@ -119,8 +117,6 @@ export class DeptComponent extends ComponentBase implements OnInit {
     } else {
       this.additForm.controls.parentId.setErrors(null);
     }
-
-
   }
 
   public showAdditBox(title?: string, data?: any) {

@@ -7,6 +7,8 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { RoleComponent } from './role/role.component';
 import { DeptComponent } from './dept/dept.component';
 import {NzTreeModule} from 'ng-tree-antd';
+import {DeptService} from './services/dept.service';
+import { DepttreeComponent } from './dept/subcomponent/depttree.component';
 
 @NgModule({
   imports: [
@@ -26,7 +28,11 @@ import {NzTreeModule} from 'ng-tree-antd';
   declarations: [
     UserComponent,
     RoleComponent,
+    DepttreeComponent,
     DeptComponent
+  ],
+  providers: [
+    DeptService
   ]
 })
 export class SysModule { }
