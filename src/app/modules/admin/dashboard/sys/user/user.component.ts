@@ -10,6 +10,7 @@ import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {ComponentBase} from '../../../../../base/component/component.base';
 import {Observable} from 'rxjs/Observable';
 import {debounceTime, map} from 'rxjs/operators';
+import index from '@angular/cli/lib/cli';
 
 @Component({
   selector: 'app-admin-dashboard-sys-user',
@@ -43,6 +44,9 @@ export class UserComponent extends ComponentBase implements OnInit, OnDestroy, A
   };
 
 
+  @ViewChild('tree') tree; // 获取树的结构
+  public nodes = [];  // 节点
+
   // 角色列表
   public roleList = [];
 
@@ -55,6 +59,11 @@ export class UserComponent extends ComponentBase implements OnInit, OnDestroy, A
   // 添加修改Ng对象
   @ViewChild('additBox')
   public additBox;
+  @ViewChild('additBoxDept')
+  public additBoxDept;
+  public treeModal;
+
+
   // 添加修改的弹窗对象
   public additModal;
   // 添加修改form
@@ -83,7 +92,12 @@ export class UserComponent extends ComponentBase implements OnInit, OnDestroy, A
       // 电话
       phone: [null, [Validators.required, Validators.pattern(REGEXP.CHINA_PHONE)]],
       // 角色id集合
-      roleIdList: [null,]
+      roleIdList: [null,],
+      // 部门名称
+      deptName: [null,],
+      // 部门id
+      deptId: [null],
+
     });
   }
 
@@ -124,7 +138,7 @@ export class UserComponent extends ComponentBase implements OnInit, OnDestroy, A
         // 循环用户列表
         for (const l of this.list) {
           const roleNames = [];
-          l.roleIdList  = l.roleIds.split(',');
+          l.roleIdList = l.roleIds.split(',');
           // 循环用户角色
           for (const r of l.roleIdList) {
             // 循环角色列表
@@ -151,6 +165,10 @@ export class UserComponent extends ComponentBase implements OnInit, OnDestroy, A
    * @param {string} data   回填的数据; 存在则是修改, 不存在则是修改
    */
   public showAdditBox(title?: string, data?: any) {
+
+    // 加载组织机构
+    this.loadDeptList();
+
     if (Utils.referencable(data)) {
       this.additForm.patchValue(data);
       // 回显角色
@@ -158,7 +176,7 @@ export class UserComponent extends ComponentBase implements OnInit, OnDestroy, A
         let checked = false;
         for (const ur of data.roleIdList) {  // 用户角色列表
           if (ur === role.value) {
-            checked = true ;
+            checked = true;
           }
         }
         role.checked = checked;
@@ -177,9 +195,23 @@ export class UserComponent extends ComponentBase implements OnInit, OnDestroy, A
       title: title ? title : '标题',
       content: this.additBox,
       maskClosable: false,
+      zIndex: 9,
       footer: false,
       style: {
         width: '500px'
+      }
+    });
+  }
+
+  public showAdditBoxDept(title?: string, data?: any) {
+    this.treeModal = this.modal.open({
+      title: title ? title : '标题',
+      content: this.additBoxDept,
+      zIndex: 10,
+      maskClosable: false,
+      footer: false,
+      style: {
+        width: '300px'
       }
     });
   }
@@ -198,15 +230,16 @@ export class UserComponent extends ComponentBase implements OnInit, OnDestroy, A
     this.http.post(Utils.hasText(user.id) ? environment.modules.admin.http.urls.user.update :
       environment.modules.admin.http.urls.user.add, user).subscribe((res: any) => {
       this.additModal.destroy();
-      if (Utils.hasText(user.id)) {
-        for (let i = 0; i < this.list.length; i++) {
-          if (this.list[i].id === res.data.id) {
-            this.list.splice(i, 1, res.data);
-          }
-        }
-      } else {
-        this.list.push(res.data);
-      }
+      // if (Utils.hasText(user.id)) {
+      //   for (let i = 0; i < this.list.length; i++) {
+      //     if (this.list[i].id === res.data.id) {
+      //       this.list.splice(i, 1, res.data);
+      //     }
+      //   }
+      // } else {
+      //   this.list.push(res.data);
+      // }
+      this.getList();
     });
 
   }
@@ -296,6 +329,7 @@ export class UserComponent extends ComponentBase implements OnInit, OnDestroy, A
   }
 
 
+  // 验证用户是否存在
   private checkUserExists(control: FormControl): Observable<any> {
     return control.valueChanges.pipe(
       // 延时操作时间, 避免连续使用网络
@@ -322,6 +356,65 @@ export class UserComponent extends ComponentBase implements OnInit, OnDestroy, A
         );
       })
     );
+  }
+
+
+  // 加载组织机构
+  public loadDeptList() {
+    this.http.get(environment.modules.admin.http.urls.dept.list).subscribe((res: any) => {
+      this.nodes = this.dealWithListToTree('-1', res.data);
+    });
+  }
+
+  /**
+   *
+   * @param {string} pid  父级菜单Id
+   * @param data //所有数据dept list
+   */
+  public dealWithListToTree(pid: string, data: Array<any>) {
+    const children = [];
+    for (let i = 0; i < data.length; i++) {
+      const dept = data[i];
+      if (dept['parentId'] === pid) {
+        // data.splice(i, 1);
+        const temp = {name: dept.name, id: dept.id, sort: dept.orderNum, oriData: dept};
+        const c = this.dealWithListToTree(dept.id, data);
+        if (c.length > 0) {
+          temp['children'] = c;
+        }
+        children.push(temp);
+      }
+    }
+
+    // 排序
+    children.sort((a, b) => {
+      return a['sort'] - b['sort'];
+    });
+
+    return children;
+  }
+
+  // 弹框选中机构
+  onActivateDept(ev: any) {
+    this.treeModal.destroy();
+    this.additForm.controls.deptName.setValue(ev.node.data.oriData.name);
+    this.additForm.controls.deptId.setValue(ev.node.data.oriData.id);
+  }
+
+  // 重置按钮
+  public resetPw(id: String) {
+    this.http.post(environment.modules.admin.http.urls.user.resetPw, id).subscribe((res: any) => {
+      this.msg.success(`重置密码成功!!!`);
+    });
+  }
+
+  // 重置用户状态
+  public updateUserStatus(data: any, status: number) {
+    data.userStatus = status;
+    this.http.post(environment.modules.admin.http.urls.user.update, data).subscribe((res: any) => {
+      this.msg.success(`更新状态成功!!!`);
+    });
+
   }
 
 }

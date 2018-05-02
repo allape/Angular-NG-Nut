@@ -52,7 +52,9 @@ export const environment = {
             // 根据userId 或者userName查询用户
             findOne:        '/sys/user/findOne',
             // 更新用户
-            update:         '/sys/user/update'
+            update:         '/sys/user/update',
+            // 重置密码
+            resetPw:        '/sys/user/resetPw'
           },
           role: {
             // 获取角色列表查询分页
