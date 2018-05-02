@@ -82,7 +82,7 @@
             <a class="ant-dropdown-link" nz-dropdown>
               <span class="user-status-span user-status-normal" *ngSwitchCase="1">正常</span>
               <span class="user-status-span user-status-deny" *ngSwitchCase="0">冻结</span>
-              <span class="user-status-span user-status-unknown" *ngSwitchDefault>未知</span>
+              <!--<span class="user-status-span user-status-unknown" *ngSwitchDefault>未知</span>-->
               <i class="anticon anticon-down"></i>
             </a>
             <ul nz-menu>
@@ -90,8 +90,8 @@
                 class="user-status-span user-status-deny">冻结</span></li>
               <li nz-menu-item (click)="updateUserStatus(data,1)"><span
                 class="user-status-span user-status-normal">正常</span></li>
-              <li nz-menu-item (click)="updateUserStatus(data,3)"><span
-                class="user-status-span user-status-unknown">未知</span></li>
+              <!--<li nz-menu-item (click)="updateUserStatus(data,3)"><span-->
+                <!--class="user-status-span user-status-unknown">未知</span></li>-->
             </ul>
           </nz-dropdown>
         </td>

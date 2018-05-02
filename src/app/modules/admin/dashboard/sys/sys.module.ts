@@ -9,6 +9,7 @@ import { DeptComponent } from './dept/dept.component';
 import {NzTreeModule} from 'ng-tree-antd';
 import {DeptService} from './services/dept.service';
 import { DepttreeComponent } from './dept/subcomponent/depttree.component';
+import { MenuComponent } from './menu/menu.component';
 
 @NgModule({
   imports: [
@@ -29,6 +30,7 @@ import { DepttreeComponent } from './dept/subcomponent/depttree.component';
     UserComponent,
     RoleComponent,
     DepttreeComponent,
+    MenuComponent,
     DeptComponent
   ],
   providers: [
