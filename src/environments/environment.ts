@@ -81,7 +81,13 @@ export const environment = {
           // 菜单
           menu: {
             // 获取菜单列表
-            list:           '/sys/menu/list'
+            list:           '/sys/menu/list',
+            // 添加
+            save:           '/sys/menu/save',
+            // 修改
+            update:         '/sys/menu/update',
+            // 删除
+            delete:         '/sys/menu/delete',
           }
         },
         // 服务器响应内容
