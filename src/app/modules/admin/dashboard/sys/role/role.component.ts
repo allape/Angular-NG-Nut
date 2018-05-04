@@ -10,6 +10,8 @@ import {environment} from '../../../../../../environments/environment';
 import {ComponentBase} from '../../../../../base/component/component.base';
 import {Observable} from 'rxjs/Observable';
 import {debounceTime, map} from 'rxjs/operators';
+import {MenuService} from '../services/menu.service';
+import {TOP_MENU_LEVEL_ID} from '../menu/menu.component';
 
 @Component({
   selector: 'app-admin-dashboard-sys-role',
@@ -107,7 +109,8 @@ export class RoleComponent extends ComponentBase implements OnInit {
       roleDesc: [null, [Validators.required]]
     });
 
-
+    // 初始化菜单选择器
+    this.initMenusSelector();
   }
 
   ngOnInit() {
@@ -240,5 +243,55 @@ export class RoleComponent extends ComponentBase implements OnInit {
     }
     this._refreshStatus();
   }
+
+  // region 菜单选择
+
+  /**
+   * 缓存的菜单
+   * @type {any[]}
+   */
+  public menus = [];
+
+  /**
+   * 菜单选择器ng对象
+   */
+  @ViewChild('menusSelector')
+  public menusSelectorNg;
+
+  /**
+   * 菜单选择器modal对象
+   */
+  public menusSelectorModal;
+
+  /**
+   * 初始化菜单选择器; 加载所有菜单到缓存
+   */
+  public initMenusSelector() {
+    this.http.post(environment.modules.admin.http.urls.menu.list, null).subscribe(
+      (res: any) => {
+        this.menus = MenuService.formatMenus(res.data, TOP_MENU_LEVEL_ID, 'menuSort');
+      }
+    );
+  }
+
+  /**
+   * 显示菜单选择器
+   * @param {string} id   角色id; 用于查询设置了的菜单列表
+   */
+  public showMenusSelector(id: string) {
+    // TODO 查询角色拥有的菜单
+    this.menusSelectorModal = this.modal.open({
+      title: '请选择角色菜单',
+      content: this.menusSelectorNg,
+      style: {
+        width: '500px'
+      },
+      onOk: () => {
+        // TODO 保存选择的菜单列表
+      },
+    });
+  }
+
+  // endregion
 
 }

@@ -11,6 +11,12 @@ import {fadein} from '../../../../../app.animations';
 import {MenuService} from '../services/menu.service';
 import {ValidationErrors} from '@angular/forms/src/directives/validators';
 
+/**
+ * 顶级菜单的parentId
+ * @type {string}
+ */
+export const TOP_MENU_LEVEL_ID = '0';
+
 @Component({
   selector: 'app-admin-dashboard-sys-menu',
   templateUrl: './menu.component.html',
@@ -21,11 +27,6 @@ import {ValidationErrors} from '@angular/forms/src/directives/validators';
 })
 export class MenuComponent extends ComponentBase implements OnInit, OnDestroy {
 
-  /**
-   * 顶级菜单的parentId
-   * @type {string}
-   */
-  private TOP_LEVEL_ID = '0';
 
   private COMPONENT_NAME = 'AdminDashboardSysMenuComponent';
 
@@ -135,7 +136,7 @@ export class MenuComponent extends ComponentBase implements OnInit, OnDestroy {
         // 隐藏按钮
         this.showRefreshBtn = false;
         // 赋值
-        this.list = MenuService.formatMenus(res.data, this.TOP_LEVEL_ID, 'menuSort');
+        this.list = MenuService.formatMenus(res.data, TOP_MENU_LEVEL_ID, 'menuSort');
       },
       () => {
         this.showRefreshBtn = true;
@@ -170,7 +171,7 @@ export class MenuComponent extends ComponentBase implements OnInit, OnDestroy {
     const data = this.additForm.getRawValue();
     // 整理数据
     // 如果parentId为空字符串, 则默认设置为0
-    data.parentId = Utils.hasText(data.parentId) ? data.parentId : this.TOP_LEVEL_ID;
+    data.parentId = Utils.hasText(data.parentId) ? data.parentId : TOP_MENU_LEVEL_ID;
     // 是否为添加; 只有id为空时才为添加
     const addFlag = !Utils.hasText(data.id);
     // 请求网络

@@ -59,7 +59,7 @@
         <th nz-th><span>角色名称</span></th>
         <th nz-th><span>角色编码</span></th>
         <th nz-th><span>角色描述</span></th>
-        <th nz-th style="width: 10%;"><span>操作</span></th>
+        <th nz-th><span>操作</span></th>
       </tr>
       </thead>
       <tbody nz-tbody>
@@ -74,6 +74,8 @@
         <td nz-td>{{data.roleCode}}</td>
         <td nz-td>{{data.roleDesc}}</td>
         <td nz-td>
+          <a (click)="showMenusSelector(data.id);">菜单设置</a>
+          <span nz-table-divider></span>
           <a (click)="showAdditBox('修改 - ' + data.roleName, data);">编辑</a>
           <span nz-table-divider></span>
           <nz-popconfirm [nzTitle]="'确认删除?'" [nzOkText]="'确定'" [nzCancelText]="'取消'" (nzOnConfirm)="del(data.id);">
@@ -145,3 +147,6 @@
   </form>
 </ng-template>
 
+<ng-template #menusSelector>
+  <nz-tree #tree [nzNodes]="menus" [nzCheckable]="true" [nzOptions]="{displayField: 'menuName'}"></nz-tree>
+</ng-template>
