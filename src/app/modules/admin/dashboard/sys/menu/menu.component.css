@@ -1,3 +1,11 @@
 :host ::ng-deep .menu-box {
-  min-height: 500px;
+  min-height: 550px;
+  max-height: 550px;
+}
+
+:host ::ng-deep .menu-box .right-placeholder {
+  font-size: 30px;
+  color: #dedede;
+  text-align: center;
+  line-height: 300px;
 }

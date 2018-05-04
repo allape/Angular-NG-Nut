@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ComponentBase} from '../../../../../base/component/component.base';
 import {CommonService} from '../../../../../base/services/common.service';
-import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Title} from '@angular/platform-browser';
 import {HttpService} from '../../../../../base/services/http/http.service';
 import {NzMessageService, NzModalService} from 'ng-zorro-antd';
@@ -9,6 +9,7 @@ import {Utils} from '../../../../../base/utils/utils';
 import {environment} from '../../../../../../environments/environment';
 import {fadein} from '../../../../../app.animations';
 import {MenuService} from '../services/menu.service';
+import {ValidationErrors} from '@angular/forms/src/directives/validators';
 
 @Component({
   selector: 'app-admin-dashboard-sys-menu',
@@ -20,7 +21,11 @@ import {MenuService} from '../services/menu.service';
 })
 export class MenuComponent extends ComponentBase implements OnInit, OnDestroy {
 
-  // TODO 完善菜单管理
+  /**
+   * 顶级菜单的parentId
+   * @type {string}
+   */
+  private TOP_LEVEL_ID = '0';
 
   private COMPONENT_NAME = 'AdminDashboardSysMenuComponent';
 
@@ -48,6 +53,17 @@ export class MenuComponent extends ComponentBase implements OnInit, OnDestroy {
    */
   public showRefreshBtn = false;
 
+  /**
+   * 菜单选择器ng对象
+   */
+  @ViewChild('menuSelector')
+  public menuSelectorNg;
+
+  /**
+   * 菜单选择器modal
+   */
+  public menuSelectorModal;
+
   constructor(
     public  http:   HttpService,
     public  cs:     CommonService,
@@ -67,21 +83,30 @@ export class MenuComponent extends ComponentBase implements OnInit, OnDestroy {
     // 初始化表单
     this.additForm = fb.group({
       // id
-      id:           [null],
+      id:             [null],
       // 父级菜单id
-      parentId:     [null],
+      parentId:       [null],
       // 菜单名称
-      menuName:     [null, [Validators.required]],
+      menuName:       [null, [Validators.required]],
+      // 菜单父菜单名称
+      menuParentName: [null, (): ValidationErrors | null => {
+        if (Utils.referencable(this.additForm) && Utils.hasText(this.additForm.controls.id.value)) {
+          if (this.additForm.controls.id.value === this.additForm.controls.parentId.value) {
+            return {checked: true};
+          }
+        }
+        return null;
+      }],
       // 菜单类型
-      menuType:     [null, [Validators.required]],
+      menuType:       [null, [Validators.required]],
       // 菜单权限
-      menuPerms:    [null],
+      menuPerms:      [null],
       // 菜单链接
-      menuHref:     [null],
+      menuHref:       [null],
       // 菜单图标
-      menuIcon:     [null],
+      menuIcon:       [null],
       // 菜单序号
-      menuSort:     [null],
+      menuSort:       [null],
     });
   }
 
@@ -110,8 +135,7 @@ export class MenuComponent extends ComponentBase implements OnInit, OnDestroy {
         // 隐藏按钮
         this.showRefreshBtn = false;
         // 赋值
-        this.list = MenuService.formatMenus(res.data, '0', 'menuSort');
-        console.log(this.list);
+        this.list = MenuService.formatMenus(res.data, this.TOP_LEVEL_ID, 'menuSort');
       },
       () => {
         this.showRefreshBtn = true;
@@ -124,6 +148,12 @@ export class MenuComponent extends ComponentBase implements OnInit, OnDestroy {
    * @param e
    */
   public onListMenuSelected(e) {
+    // 重置数据
+    this.additForm.reset();
+
+    // 设置菜单父级菜单名称
+    this.additForm.controls.menuParentName.setValue(e.node.parent.data.menuName);
+
     // 显示添加修改框
     this.showAdditContent = true;
     // 显示添加修改框
@@ -138,6 +168,9 @@ export class MenuComponent extends ComponentBase implements OnInit, OnDestroy {
   public save() {
     // 获取数据
     const data = this.additForm.getRawValue();
+    // 整理数据
+    // 如果parentId为空字符串, 则默认设置为0
+    data.parentId = Utils.hasText(data.parentId) ? data.parentId : this.TOP_LEVEL_ID;
     // 是否为添加; 只有id为空时才为添加
     const addFlag = !Utils.hasText(data.id);
     // 请求网络
@@ -163,11 +196,38 @@ export class MenuComponent extends ComponentBase implements OnInit, OnDestroy {
       return;
     }
     // 请求网络
-    this.http.delete(environment.modules.admin.http.urls.menu.delete).subscribe(
+    this.http.delete(HttpService.buildUrl(environment.modules.admin.http.urls.menu.delete, {menuId: id})).subscribe(
       () => {
         this.getList();
       }
     );
+  }
+
+  /**
+   * 弹出菜单选择器
+   */
+  public showMenuSelector() {
+    this.menuSelectorModal = this.modal.open({
+      title: '请选择父级菜单',
+      content: this.menuSelectorNg,
+      maskClosable: false,
+      footer: false,
+      style: {
+        width: '300px'
+      }
+    });
+  }
+
+  /**
+   * 菜单选择器选择事件
+   * @param e
+   */
+  public onMenuSelectorSelected(e) {
+    // 绑定数据
+    this.additForm.controls.parentId.setValue(e.node.data.id);
+    this.additForm.controls.menuParentName.setValue(e.node.data.menuName);
+    // 关闭选择框
+    this.menuSelectorModal.destroy();
   }
 
 }
