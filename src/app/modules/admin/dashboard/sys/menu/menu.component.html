@@ -1,0 +1,140 @@
+<!-- 刷新按钮 -->
+<nz-card @fadein style="margin-bottom: 20px;" *ngIf="showRefreshBtn">
+  <ng-template #body>
+    <button nz-button [nzSize]="'large'" [nzType]="'primary'" (click)="getList();" [nzLoading]="http.loading"
+            *ngIf="showRefreshBtn">刷新</button>
+  </ng-template>
+</nz-card>
+
+<!-- 树形列表以及添加修改框 -->
+<div @fadein nz-row [nzGutter]="10">
+
+  <div nz-col [nzSpan]="8">
+    <nz-card class="menu-box" [nzNoHovering]="true">
+      <ng-template #body>
+        <div style="margin-bottom: -40px; text-align: right;">
+          <button style="z-index: 3;" nz-button [nzSize]="'large'" [nzType]="'primary'" [nzLoading]="http.loading"
+                  (click)="showAddContent();">添加菜单</button>
+        </div>
+        <nz-tree #tree [nzNodes]="list" (nzActivate)="onListMenuSelected($event)" (nzDeactivate)="onListMenuSelected($event)" [nzOptions]="{displayField: 'menuName'}"></nz-tree>
+      </ng-template>
+    </nz-card>
+  </div>
+
+  <div nz-col [nzSpan]="16">
+    <nz-card class="menu-box" [nzNoHovering]="true">
+      <ng-template #body>
+        <form nz-form [formGroup]="additForm" *ngIf="showAdditContent" @fadein>
+          <nz-input formControlName="id" name="id" [nzType]="'hidden'"></nz-input>
+          <nz-input formControlName="parentId" name="parentId" [nzType]="'hidden'"></nz-input>
+
+          <!-- 菜单类型 -->
+          <div nz-row nz-form-item>
+            <div nz-form-label nz-col [nzSpan]="6"><label nz-form-item-required>类型</label></div>
+            <div nz-form-control nz-col [nzSpan]="18">
+              <nz-radio-group formControlName="menuType" name="menuType">
+                <label nz-radio [nzValue]="'0'">
+                  <span>目录</span>
+                </label>
+                <label nz-radio [nzValue]="'1'">
+                  <span>菜单</span>
+                </label>
+                <label nz-radio [nzValue]="'2'">
+                  <span>按钮</span>
+                </label>
+              </nz-radio-group>
+              <ng-container *ngIf="dot(additForm, 'menuType')">
+              </ng-container>
+            </div>
+          </div>
+
+          <!-- 菜单名称 -->
+          <div nz-row nz-form-item>
+            <div nz-form-label nz-col [nzSpan]="6"><label nz-form-item-required>名称</label></div>
+            <div nz-form-control nz-col [nzSpan]="18" nzHasFeedback>
+              <nz-input formControlName="menuName" name="menuName" [nzType]="'text'" [nzSize]="'large'" [nzPlaceHolder]="'请输入菜单名称'"></nz-input>
+              <ng-container *ngIf="dot(additForm, 'menuName')">
+                <p nz-form-explain *ngIf="fc(additForm, 'menuName').errors?.required">请输入菜单的名称</p>
+              </ng-container>
+            </div>
+          </div>
+
+          <!-- 菜单父级归属 -->
+          <div nz-row nz-form-item>
+            <div nz-form-label nz-col [nzSpan]="6"><label>父级菜单</label></div>
+            <div nz-form-control nz-col [nzSpan]="18" nzHasFeedback>
+              <nz-input formControlName="menuParentName" name="menuParentName" [nzType]="'text'" [nzSize]="'large'"
+                        (click)="showMenuSelector();" [nzReadonly]="true"></nz-input>
+              <ng-container *ngIf="dot(additForm, 'menuParentName')">
+                <p nz-form-explain *ngIf="fc(additForm, 'menuParentName').errors?.checked">不得选当前菜单为父菜单</p>
+              </ng-container>
+            </div>
+          </div>
+
+          <!-- 菜单权限 -->
+          <div nz-row nz-form-item>
+            <div nz-form-label nz-col [nzSpan]="6"><label>权限标识符</label></div>
+            <div nz-form-control nz-col [nzSpan]="18">
+              <nz-input formControlName="menuPerms" name="menuPerms" [nzType]="'text'" [nzSize]="'large'"></nz-input>
+              <ng-container *ngIf="dot(additForm, 'menuPerms')">
+              </ng-container>
+            </div>
+          </div>
+
+          <!-- 菜单链接 -->
+          <div nz-row nz-form-item *ngIf="fc(additForm, 'menuType').value === '1';">
+            <div nz-form-label nz-col [nzSpan]="6"><label nz-form-item-required>链接</label></div>
+            <div nz-form-control nz-col [nzSpan]="18">
+              <nz-input formControlName="menuHref" name="menuHref" [nzType]="'text'" [nzSize]="'large'"></nz-input>
+              <ng-container *ngIf="dot(additForm, 'menuHref')">
+                <p nz-form-explain *ngIf="fc(additForm, 'menuParentName').errors?.required">请输入菜单的链接</p>
+              </ng-container>
+            </div>
+          </div>
+
+          <!-- 菜单图标 -->
+          <div nz-row nz-form-item>
+            <div nz-form-label nz-col [nzSpan]="6"><label>图标</label></div>
+            <div nz-form-control nz-col [nzSpan]="18">
+              <nz-input formControlName="menuIcon" name="menuIcon" [nzType]="'text'" [nzSize]="'large'"></nz-input>
+              <ng-container *ngIf="dot(additForm, 'menuIcon')">
+              </ng-container>
+            </div>
+          </div>
+
+          <!-- 菜单序号 -->
+          <div nz-row nz-form-item>
+            <div nz-form-label nz-col [nzSpan]="6"><label>序号</label></div>
+            <div nz-form-control nz-col [nzSpan]="18">
+              <nz-input formControlName="menuSort" name="menuSort" [nzType]="'number'" [nzSize]="'large'"></nz-input>
+              <ng-container *ngIf="dot(additForm, 'menuSort')">
+              </ng-container>
+            </div>
+          </div>
+
+          <div nz-row class="buttons">
+            <button nz-button [nzSize]="'large'" [nzType]="'primary'" [nzLoading]="http.loading" (click)="save();"
+                    [disabled]="additForm.invalid">确定</button>
+            <button nz-button [nzSize]="'large'" [nzType]="'default'" [nzLoading]="http.loading"
+                    (click)="showAdditContent = false;">取消</button>
+            <nz-popconfirm *ngIf="showDelBtn" [nzTitle]="'确定要删除这个任务吗？'" (nzOnConfirm)="del();" [nzPlacement]="'top'">
+              <button nz-popconfirm nz-button [nzSize]="'large'" [nzType]="'danger'" [nzLoading]="http.loading">删除</button>
+            </nz-popconfirm>
+          </div>
+
+        </form>
+        <div *ngIf="!showAdditContent" @fadein class="right-placeholder">
+          <p>请在左侧选择要修改的菜单或者新建菜单</p>
+        </div>
+      </ng-template>
+    </nz-card>
+  </div>
+
+</div>
+
+<!-- 父级菜单选择器 -->
+<ng-template #menuSelector>
+  <nz-tree #tree [nzNodes]="list"
+           (nzActivate)="onMenuSelectorSelected($event)" (nzDeactivate)="onMenuSelectorSelected($event)"
+           [nzOptions]="{displayField: 'menuName'}"></nz-tree>
+</ng-template>

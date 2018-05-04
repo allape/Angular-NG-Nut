@@ -59,7 +59,7 @@
         <th nz-th><span>角色名称</span></th>
         <th nz-th><span>角色编码</span></th>
         <th nz-th><span>角色描述</span></th>
-        <th nz-th style="width: 10%;"><span>操作</span></th>
+        <th nz-th style="width: 100px;"><span>操作</span></th>
       </tr>
       </thead>
       <tbody nz-tbody>
@@ -87,7 +87,7 @@
     </nz-table>
 
     <nz-popconfirm [nzTitle]="'确认删除?'" [nzOkText]="'确定'" [nzCancelText]="'取消'" (nzOnConfirm)="batchDel();">
-      <button nz-button [nzType]="'danger'" [nzLoading]="http.loading" nz-popconfirm>批量删除</button>
+      <button style="margin-top: 3px;" nz-button [nzType]="'danger'" [nzLoading]="http.loading" nz-popconfirm>批量删除</button>
     </nz-popconfirm>
 
   </ng-template>
@@ -137,6 +137,16 @@
       </div>
     </div>
 
+    <!-- 角色菜单 -->
+    <div nz-row nz-form-item>
+      <div nz-form-control nz-col [nzSpan]="12" nzHasFeedback>
+        <nz-tree [nzNodes]="menus" [nzCheckable]="true" [nzOptions]="{displayField: 'menuName'}"></nz-tree>
+      </div>
+      <div nz-form-control nz-col [nzSpan]="12" nzHasFeedback>
+        <nz-tree [nzNodes]="menus" [nzCheckable]="true" [nzOptions]="{displayField: 'menuName'}"></nz-tree>
+      </div>
+    </div>
+
     <div nz-row class="buttons">
       <button nz-button [nzSize]="'large'" [nzType]="'primary'" [nzLoading]="http.loading" (click)="saveOrUpdate()" [disabled]="additForm.invalid">确定</button>
       <button nz-button [nzSize]="'large'" [nzType]="'default'" [nzLoading]="http.loading" (click)="additModal.destroy();">取消</button>
@@ -144,4 +154,3 @@
 
   </form>
 </ng-template>
-
