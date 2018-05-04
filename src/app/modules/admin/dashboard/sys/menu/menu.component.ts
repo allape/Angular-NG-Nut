@@ -87,6 +87,8 @@ export class MenuComponent extends ComponentBase implements OnInit, OnDestroy {
       id:             [null],
       // 父级菜单id
       parentId:       [null],
+      // 菜单类型
+      menuType:       ['0', [Validators.required]],
       // 菜单名称
       menuName:       [null, [Validators.required]],
       // 菜单父菜单名称
@@ -98,8 +100,6 @@ export class MenuComponent extends ComponentBase implements OnInit, OnDestroy {
         }
         return null;
       }],
-      // 菜单类型
-      menuType:       [null, [Validators.required]],
       // 菜单权限
       menuPerms:      [null],
       // 菜单链接
@@ -109,6 +109,27 @@ export class MenuComponent extends ComponentBase implements OnInit, OnDestroy {
       // 菜单序号
       menuSort:       [null],
     });
+
+    // 给菜单类型添加修改事件, 更改之后显示不同的内容和不同的表单校验
+    this.additForm.controls.menuType.valueChanges.subscribe(
+      value => {
+        switch (value) {
+          // 菜单
+          case '1':
+            // 添加必填效验
+            this.additForm.controls.menuHref.setValidators([Validators.required]);
+            break;
+          // 目录
+          case '0':
+          // 按钮
+          case '2':
+            // 掉其效验
+            this.additForm.controls.menuHref.clearValidators();
+            this.additForm.controls.menuHref.setValue(null);
+            break;
+        }
+      }
+    );
   }
 
   ngOnInit() {
@@ -164,6 +185,20 @@ export class MenuComponent extends ComponentBase implements OnInit, OnDestroy {
   }
 
   /**
+   * 显示添加菜单内容
+   */
+  public showAddContent() {
+    // 显示html
+    this.showAdditContent = true;
+    // 隐藏删除按钮
+    this.showDelBtn = false;
+    // 重置表单
+    this.additForm.reset();
+    // 设置菜单类型为目录('0')
+    this.additForm.controls.menuType.setValue('0');
+  }
+
+  /**
    * 保存数据; 根据id是否有值来判断是添加还是修改
    */
   public save() {
@@ -177,7 +212,8 @@ export class MenuComponent extends ComponentBase implements OnInit, OnDestroy {
     // 请求网络
     this.http.post(
       addFlag ? environment.modules.admin.http.urls.menu.save : environment.modules.admin.http.urls.menu.update,
-      data
+      data,
+      {notOkMsg: '保存菜单失败'}
     ).subscribe(
       () => {
         this.getList();

@@ -69,6 +69,8 @@ export const environment = {
             delete:         '/sys/role/delete/',
             // 验证角色编码是否存在
             codeExists:     '/sys/role/info/codeExists',
+            // 角色详情
+            info:           '/sys/role/info/'
           },
           // 部门
           dept: {

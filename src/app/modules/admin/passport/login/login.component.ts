@@ -151,17 +151,25 @@ export class LoginComponent implements OnInit, OnDestroy, AfterViewInit {
           },
           (e) => {
             this.cs.mask = false;
-            this.msg.warning('登录失败! err: ' + e.msg);
-            // 刷新验证码
-            this.loadVerfiyCodeImg();
+            this.loginFailed(res.msg);
           }
         );
       } else {
-        this.msg.warning('登录失败! err: ' + res.msg);
-        // 刷新验证码
-        this.loadVerfiyCodeImg();
+        this.loginFailed(res.msg);
       }
     });
+  }
+
+  /**
+   * 登录出错或失败时调用的方法
+   * @param msg
+   */
+  private loginFailed(msg) {
+    this.msg.warning('登录失败! err: ' + msg);
+    // 刷新验证码
+    this.loadVerfiyCodeImg();
+    // 清空验证码输入框
+    this.loginForm.controls.captcha.setValue(null);
   }
 
 }
