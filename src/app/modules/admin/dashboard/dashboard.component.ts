@@ -1,8 +1,9 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {Title} from '@angular/platform-browser';
 import {CommonService} from '../../../base/services/common.service';
 import {AdminService} from '../services/admin.service';
 import {fadeInFromDown2Up} from '../../../app.animations';
+import {NzMenuComponent, NzMenuItemComponent} from 'ng-zorro-antd';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -48,12 +49,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   // endregion
 
+  /**
+   * 菜单
+   */
+  public menus;
+
   constructor(
     private title:            Title,
     private cs:               CommonService,
-    private as:               AdminService,
+    public  as:               AdminService,
   ) {
+    // 设置标题
     this.title.setTitle('管理平台');
+    // 获取菜单
+    this.menus = this.as.getUser().menus;
   }
 
   ngOnInit() {

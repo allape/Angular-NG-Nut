@@ -8,8 +8,8 @@ import {NzMessageService, NzModalService} from 'ng-zorro-antd';
 import {Utils} from '../../../../../base/utils/utils';
 import {environment} from '../../../../../../environments/environment';
 import {fadein} from '../../../../../app.animations';
-import {MenuService} from '../services/menu.service';
 import {ValidationErrors} from '@angular/forms/src/directives/validators';
+import {TreeUtils} from '../../../../../base/utils/TreeUtils';
 
 /**
  * 顶级菜单的parentId
@@ -157,7 +157,7 @@ export class MenuComponent extends ComponentBase implements OnInit, OnDestroy {
         // 隐藏按钮
         this.showRefreshBtn = false;
         // 赋值
-        this.list = MenuService.formatMenus(res.data, TOP_MENU_LEVEL_ID, 'menuSort');
+        this.list = TreeUtils.list2Tree(res.data, TOP_MENU_LEVEL_ID, 'menuSort');
       },
       () => {
         this.showRefreshBtn = true;

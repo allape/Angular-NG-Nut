@@ -1,0 +1,21 @@
+<ng-container *ngFor="let m of menus">
+  <li nz-submenu *ngIf="isArray(m.children)">
+    <ng-container title *ngIf="m.parentId !== '0'">{{m.menuName}}</ng-container>
+    <span *ngIf="m.parentId === '0'" title>
+      <i [class]="'anticon ' + m.menuIcon"></i>
+      <span class="nav-text">{{m.menuName}}</span>
+    </span>
+    <ul>
+      <app-admin-dashboard-public-menu [menus]="m.children"></app-admin-dashboard-public-menu>
+    </ul>
+  </li>
+  <li nz-menu-item *ngIf="!isArray(m.children)">
+    <ng-container *ngIf="m.parentId !== '0'">
+      <a [routerLink]="m.menuHref">{{m.menuName}}</a>
+    </ng-container>
+    <span *ngIf="m.parentId === '0'">
+      <i [class]="'anticon ' + m.menuIcon"></i>
+      <a class="nav-text" [routerLink]="m.menuHref">{{m.menuName}}</a>
+    </span>
+  </li>
+</ng-container>

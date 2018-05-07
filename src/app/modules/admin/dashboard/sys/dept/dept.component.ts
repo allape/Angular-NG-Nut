@@ -8,6 +8,12 @@ import {environment} from '../../../../../../environments/environment';
 import {ComponentBase} from '../../../../../base/component/component.base';
 import {Utils} from '../../../../../base/utils/utils';
 
+/**
+ * 部门根级id
+ * @type {string}
+ */
+export const DEPT_ROOT_ID = '-1';
+
 @Component({
   selector: 'app-admin-dashboard-sys-dept',
   templateUrl: './dept.component.html',

@@ -6,6 +6,7 @@ import { DashboardComponent } from './dashboard.component';
 import {NgZorroAntdModule} from 'ng-zorro-antd';
 import { PermissionDirective } from '../services/permission/permission.directive';
 import {MenuService} from './sys/services/menu.service';
+import {PUBLIC_COMPONENTS} from './public/public.import';
 
 @NgModule({
   imports: [
@@ -20,6 +21,7 @@ import {MenuService} from './sys/services/menu.service';
     HomeComponent,
     DashboardComponent,
     PermissionDirective,
+    ...PUBLIC_COMPONENTS,
   ],
   providers: [
     MenuService

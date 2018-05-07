@@ -58,6 +58,7 @@
 
         <th nz-th><span>角色名称</span></th>
         <th nz-th><span>角色编码</span></th>
+        <th nz-th><span>角色部门</span></th>
         <th nz-th><span>角色描述</span></th>
         <th nz-th style="width: 100px;"><span>操作</span></th>
       </tr>
@@ -72,6 +73,7 @@
 
         <td nz-td>{{data.roleName}}</td>
         <td nz-td>{{data.roleCode}}</td>
+        <td nz-td>{{data.deptName}}</td>
         <td nz-td>{{data.roleDesc}}</td>
         <td nz-td>
           <a (click)="showAdditBox('修改 - ' + data.roleName, data);">编辑</a>
@@ -99,6 +101,7 @@
 <ng-template #additBox>
   <form nz-form [formGroup]="additForm">
     <nz-input formControlName="id" name="id" [nzType]="'hidden'"></nz-input>
+    <!--<nz-input formControlName="deptId" name="deptId" [nzType]="'hidden'"></nz-input>-->
 
     <!-- 角色名称 -->
     <div nz-row nz-form-item>
@@ -125,6 +128,18 @@
       </div>
     </div>
 
+    <!-- 角色部门 -->
+    <!--<div nz-row nz-form-item>
+      <div nz-form-label nz-col [nzSpan]="6"><label nz-form-item-required>角色部门</label></div>
+      <div nz-form-control nz-col [nzSpan]="18" nzHasFeedback>
+        <nz-input formControlName="deptName" name="deptName"
+                  [nzPlaceHolder]="'角色部门'" [nzType]="'text'" [nzSize]="'large'" [nzReadonly]="true" (click)="showDeptSelector();"></nz-input>
+        <ng-container *ngIf="dot(additForm, 'deptName')">
+          <p nz-form-explain *ngIf="fc(additForm, 'deptName').errors?.required">请选择角色所属部门</p>
+        </ng-container>
+      </div>
+    </div>-->
+
     <!-- 角色描述 -->
     <div nz-row nz-form-item>
       <div nz-form-label nz-col [nzSpan]="6"><label nz-form-item-required>角色描述</label></div>
@@ -139,11 +154,11 @@
 
     <!-- 角色菜单 -->
     <div nz-row nz-form-item>
-      <div nz-form-control nz-col [nzSpan]="12" nzHasFeedback>
+      <div nz-form-control nz-col [nzSpan]="12">
         <nz-tree [nzNodes]="menus" [nzCheckable]="true" [nzOptions]="{displayField: 'menuName'}"></nz-tree>
       </div>
-      <div nz-form-control nz-col [nzSpan]="12" nzHasFeedback>
-        <nz-tree [nzNodes]="menus" [nzCheckable]="true" [nzOptions]="{displayField: 'menuName'}"></nz-tree>
+      <div nz-form-control nz-col [nzSpan]="12">
+        <nz-tree [nzNodes]="depts" [nzCheckable]="true" [nzOptions]="{displayField: 'name'}"></nz-tree>
       </div>
     </div>
 
@@ -154,3 +169,8 @@
 
   </form>
 </ng-template>
+
+<!-- 部门选择器 -->
+<!--<ng-template #deptSelector>
+  <nz-tree [nzNodes]="depts" [nzCheckable]="false" [nzOptions]="{displayField: 'name'}" (nzActivate)="onDeptSelect($event);" (nzDeactivate)="onDeptSelect($event);"></nz-tree>
+</ng-template>-->

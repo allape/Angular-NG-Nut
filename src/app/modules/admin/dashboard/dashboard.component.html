@@ -1,27 +1,12 @@
 <nz-layout id="dashboard" [@fadeInFromDown2Up]>
 
   <!-- 左侧菜单 -->
-  <nz-sider nzCollapsible [(nzCollapsed)]="isCollapsed" [nzTrigger]="null">
+  <nz-sider id="menus" nzCollapsible [(nzCollapsed)]="isCollapsed" [nzTrigger]="null">
     <!-- logo -->
     <div class="logo"></div>
     <!-- 菜单 -->
-    <ul nz-menu [nzTheme]="'dark'" [nzMode]="isCollapsed?'vertical':'inline'" class="menu-box">
-      <li nz-submenu>
-        <span title><i class="anticon anticon-user"></i><span class="nav-text">User</span></span>
-        <ul>
-          <li nz-menu-item>Tom</li>
-          <li nz-menu-item>Bill</li>
-          <li nz-menu-item>Alex</li>
-        </ul>
-      </li>
-      <li nz-submenu>
-        <span title><i class="anticon anticon-team"></i><span class="nav-text">Team</span></span>
-        <ul>
-          <li nz-menu-item>Team 1</li>
-          <li nz-menu-item>Team 2</li>
-        </ul>
-      </li>
-      <li nz-menu-item><span><i class="anticon anticon-file"></i><span class="nav-text">File</span></span></li>
+    <ul nz-menu [nzTheme]="'dark'" [nzMode]="isCollapsed?'vertical':'inline'">
+      <app-admin-dashboard-public-menu [menus]="menus"></app-admin-dashboard-public-menu>
     </ul>
   </nz-sider>
 

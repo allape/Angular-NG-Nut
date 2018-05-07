@@ -6,6 +6,8 @@ import {environment} from '../../../../environments/environment';
 import {NzMessageService} from 'ng-zorro-antd';
 import {Observable} from 'rxjs/Observable';
 import {AdminTokenService} from './token/admin-token.service';
+import {TreeUtils} from '../../../base/utils/TreeUtils';
+import {TOP_MENU_LEVEL_ID} from '../dashboard/sys/menu/menu.component';
 
 /**
  * 管理员平台的路由
@@ -51,36 +53,44 @@ export class AdminService {
     if (Utils.hasText(token) && Utils.referencable(expires)) {
       this.ats.setToken(token, expires);
     }
+    const errMsg = '获取您的信息失败';
     // 返回订阅对象
     return new Observable<Object>((subscriber) => {
       // 获取管理员信息
-      this.http.post(environment.modules.admin.http.urls.user.current, null).subscribe(
+      this.http.post(
+        environment.modules.admin.http.urls.user.current,
+        null,
+        {notOkMsg: errMsg}
+        ).subscribe(
         (res: any) => {
-          if (res.code === environment.modules.admin.http.rescodes.ok) {
-            // 获取数据
-            this.user = Utils.referencable(res.data) ? res.data : {};
-            // TODO 临时的权限
-            this.user.permissions = ['admin:home'];
-
-            // 保存在localStorage中的信息
-            const user = {
-              id:             this.user.id,
-              username:       this.user.username,
-              token:          this.user.token,
-            };
-            // 放入localStorage
-            window.localStorage.setItem(this.ADMIN_USER_TOKEN_LOCAL_STORAGE_KEY, JSON.stringify(user));
-
-            // 触发回调
-            subscriber.next(res);
-          } else {
-            this.msg.warning('获取您的信息失败! err: ' + res.msg);
-            subscriber.error(res);
-            this.gotoLogin();
+          // 检查数据
+          if (!Utils.referencable(res.data)) {
+            subscriber.error({msg: errMsg, message: errMsg});
           }
+
+          // 用户个人数据
+          this.user = res.data['current'];
+
+          // 用户拥有的菜单
+          this.user.menus = TreeUtils.list2Tree(res.data['menuList'], TOP_MENU_LEVEL_ID, 'menuSort');
+          // 用户拥有的权限
+          this.user.permissions = res.data['permissions'];
+
+          // 保存在localStorage中的信息
+          const user = {
+            id:             this.user.id,
+            username:       this.user.username,
+            token:          this.user.token,
+          };
+          // 放入localStorage
+          window.localStorage.setItem(this.ADMIN_USER_TOKEN_LOCAL_STORAGE_KEY, JSON.stringify(user));
+
+          // 触发回调
+          subscriber.next(res);
         },
         (e) => {
           subscriber.error(e);
+          this.gotoLogin();
         }
       );
     });
@@ -90,10 +100,10 @@ export class AdminService {
    * 登出当前管理员
    */
   public logoutUser() {
-    // TODO 登出接口需指定用户名
-    this.http.delete(HttpService.buildUrl(environment.modules.admin.http.urls.auth.loginOut, this.getUser()['username'])).subscribe(
+    // TODO 登出接口
+    /*this.http.delete(HttpService.buildUrl(environment.modules.admin.http.urls.auth.loginOut, this.getUser()['username'])).subscribe(
       () => {},
-    );
+    );*/
     // 设置全局对象为null
     this.user = null;
     // 清除token

@@ -13,6 +13,7 @@ import {debounceTime, map} from 'rxjs/operators';
 import {MenuService} from '../services/menu.service';
 import {TOP_MENU_LEVEL_ID} from '../menu/menu.component';
 import {TreeUtils} from '../../../../../base/utils/TreeUtils';
+import {DEPT_ROOT_ID} from '../dept/dept.component';
 
 @Component({
   selector: 'app-admin-dashboard-sys-role',
@@ -60,13 +61,15 @@ export class RoleComponent extends ComponentBase implements OnInit {
   // 添加修改form
   public additForm: FormGroup;
 
-  constructor(public  http: HttpService,
-              public  cs: CommonService,
-              private title: Title,
-              private msg: NzMessageService,
-              private fb: FormBuilder,
-              private modal: NzModalService) {
-
+  constructor(
+    public  http: HttpService,
+    public  cs: CommonService,
+    private title: Title,
+    private msg: NzMessageService,
+    private fb: FormBuilder,
+    private modal: NzModalService
+  ) {
+    // 初始化父类
     super();
 
     // 设置浏览器标题
@@ -76,6 +79,10 @@ export class RoleComponent extends ComponentBase implements OnInit {
     this.additForm = this.fb.group({
       // id
       id: [null],
+      /*// 部门
+      deptId: [null],
+      // 部门名称; 仅用于显示
+      deptName: [null, Validators.required],*/
       // 角色名称
       roleName: [null, [Validators.required]],
       // 角色编码
@@ -113,12 +120,13 @@ export class RoleComponent extends ComponentBase implements OnInit {
 
     // 初始化菜单选择器
     this.initMenusSelector();
+    // 初始化部门选择器
+    this.initDeptsSelector();
   }
 
   ngOnInit() {
     this.getList();
   }
-
 
   // 加载列表数据
   public getList(currentPage: number = 1) {
@@ -152,15 +160,21 @@ export class RoleComponent extends ComponentBase implements OnInit {
     // 获取表单数据
     const role = this.additForm.getRawValue();
     // 获取选择了的菜单数据
-    const checkedMenus = TreeUtils.getCheckedItems(this.menus);
+    const checkedMenus = [];
+    TreeUtils.getCheckedItems(this.menus, checkedMenus);
     // 获取选中的菜单的id集合
     role['menuIdList'] = [];
     for (const cm of checkedMenus) {
       role['menuIdList'].push(cm.id);
     }
 
-    // TODO 部门
+    // 部门
+    const checkedDepts = [];
+    TreeUtils.getCheckedItems(this.depts, checkedDepts);
     role['deptIdList'] = [];
+    for (const cd of checkedDepts) {
+      role['deptIdList'].push(cd.id);
+    }
 
     this.http.post(
       Utils.hasText(role.id) ? environment.modules.admin.http.urls.role.update : environment.modules.admin.http.urls.role.save,
@@ -179,7 +193,6 @@ export class RoleComponent extends ComponentBase implements OnInit {
     });
   }
 
-
   /**
    * 显示添加修改弹窗
    * @param title           标题; 默认为"标题"
@@ -188,8 +201,10 @@ export class RoleComponent extends ComponentBase implements OnInit {
   public showAdditBox(title?: string, data?: any) {
     // 重置表单
     this.additForm.reset();
-    // 重置角色菜单选择器
+    // 重置菜单选择器
     TreeUtils.resetCheckboxes(this.menus);
+    // 重置部门选择器
+    TreeUtils.resetCheckboxes(this.depts);
 
     // 打开添加修改弹出框
     const openModal = () => {
@@ -221,15 +236,19 @@ export class RoleComponent extends ComponentBase implements OnInit {
     }
   }
 
+  // region 删除
 
   // 删除
   public del(ids?: String) {
-    this.http.delete(HttpService.buildUrl(environment.modules.admin.http.urls.role.delete, ids), { notOkMsg: '', msgSeparator: ''}).subscribe((res: any) => {
-        for (let i = 0; i < res.data.length; i++) {
-          this.delRecursion(res.data[i]);
-        }
-        this._allChecked = false;
-      });
+    this.http.delete(
+      HttpService.buildUrl(environment.modules.admin.http.urls.role.delete, ids),
+      { notOkMsg: '', msgSeparator: ''}
+    ).subscribe((res: any) => {
+      for (let i = 0; i < res.data.length; i++) {
+        this.delRecursion(res.data[i]);
+      }
+      this._allChecked = false;
+    });
   }
 
   // 递归移除元素
@@ -241,7 +260,6 @@ export class RoleComponent extends ComponentBase implements OnInit {
     }
   }
 
-
   // 批量删除
   public batchDel() {
     let ids = '';
@@ -252,7 +270,6 @@ export class RoleComponent extends ComponentBase implements OnInit {
     });
     this.del(ids);
   }
-
 
   _displayDataChange($event) {
     this.list = $event;
@@ -279,6 +296,8 @@ export class RoleComponent extends ComponentBase implements OnInit {
     this._refreshStatus();
   }
 
+  // endregion
+
   // region 当前角色缓存, 获取当前角色信息
 
   /**
@@ -303,6 +322,9 @@ export class RoleComponent extends ComponentBase implements OnInit {
 
             // 根据其中的角色菜单列表选中菜单
             TreeUtils.checkBoxes(this.menus, this.currentRole['menuIdList']);
+            TreeUtils.checkBoxes(this.depts, this.currentRole['deptIdList']);
+
+            console.log(this.depts);
 
             // 通知订阅者继续
             subscriber.next();
@@ -331,11 +353,73 @@ export class RoleComponent extends ComponentBase implements OnInit {
   public initMenusSelector() {
     this.http.post(environment.modules.admin.http.urls.menu.list, null).subscribe(
       (res: any) => {
-        this.menus = MenuService.formatMenus(res.data, TOP_MENU_LEVEL_ID, 'menuSort');
+        this.menus = TreeUtils.list2Tree(res.data, TOP_MENU_LEVEL_ID, 'menuSort');
       }
     );
   }
 
+  // endregion
+
+  // region 部门选择
+
+  /**
+   * 缓存的部门数据; 树形结构
+   * @type {any[]}
+   */
+  public depts = [];
+
+  /**
+   * 部门选择器Ng对象
+   */
+  @ViewChild('deptSelector')
+  public deptSelectorNg;
+
+  /**
+   * 部门选择器modal对象
+   */
+  public deptSelectorModal;
+
+  /**
+   * 初始化部门选择器
+   */
+  public initDeptsSelector() {
+    this.http.get(environment.modules.admin.http.urls.dept.list).subscribe(
+      (res: any) => {
+        this.depts = TreeUtils.list2Tree(res.data, DEPT_ROOT_ID, 'orderNum');
+      }
+    );
+  }
+
+  /**
+   * 当部门选择器中的一项被选中时
+   * @deprecated
+   * @param e
+   */
+  public onDeptSelect(e) {
+    // 赋值
+    this.additForm.controls['deptId'].setValue(e.node.data.id);
+    this.additForm.controls['deptName'].setValue(e.node.data.name);
+
+    // 关闭
+    this.deptSelectorModal.destroy();
+  }
+
+  /**
+   * 显示部门选择器
+   * @deprecated
+   */
+  public showDeptSelector() {
+    this.deptSelectorModal = this.modal.open({
+      title: '请选择部门',
+      content: this.deptSelectorNg,
+      maskClosable: true,
+      footer: false,
+      zIndex: 1001,
+      style: {
+        width: '500px'
+      }
+    });
+  }
 
   // endregion
 

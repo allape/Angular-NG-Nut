@@ -82,6 +82,10 @@ nz-layout#dashboard > .right-content > nz-footer {
   text-align: center;
 }
 
+nz-layout#dashboard > #menus {
+  overflow: auto;
+}
+
 /* 子模块下列表搜索框 */
 ::ng-deep .search-box .nz-row {
   margin-bottom: 0;
