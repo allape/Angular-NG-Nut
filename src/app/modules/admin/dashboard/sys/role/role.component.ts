@@ -5,13 +5,14 @@ import {CommonService} from '../../../../../base/services/common.service';
 import {Title} from '@angular/platform-browser';
 import {NzMessageService, NzModalService} from 'ng-zorro-antd';
 import {HttpService} from '../../../../../base/services/http/http.service';
-import {REGEXP, Utils} from '../../../../../base/utils/utils';
+import {Utils} from '../../../../../base/utils/utils';
 import {environment} from '../../../../../../environments/environment';
 import {ComponentBase} from '../../../../../base/component/component.base';
 import {Observable} from 'rxjs/Observable';
 import {debounceTime, map} from 'rxjs/operators';
 import {MenuService} from '../services/menu.service';
 import {TOP_MENU_LEVEL_ID} from '../menu/menu.component';
+import {TreeUtils} from '../../../../../base/utils/TreeUtils';
 
 @Component({
   selector: 'app-admin-dashboard-sys-role',
@@ -67,6 +68,7 @@ export class RoleComponent extends ComponentBase implements OnInit {
               private modal: NzModalService) {
 
     super();
+
     // 设置浏览器标题
     this.title.setTitle('角色管理');
 
@@ -150,8 +152,7 @@ export class RoleComponent extends ComponentBase implements OnInit {
     // 获取表单数据
     const role = this.additForm.getRawValue();
     // 获取选择了的菜单数据
-    const checkedMenus = [];
-    this.getCheckedMenus(this.menus, checkedMenus);
+    const checkedMenus = TreeUtils.getCheckedItems(this.menus);
     // 获取选中的菜单的id集合
     role['menuIdList'] = [];
     for (const cm of checkedMenus) {
@@ -188,7 +189,7 @@ export class RoleComponent extends ComponentBase implements OnInit {
     // 重置表单
     this.additForm.reset();
     // 重置角色菜单选择器
-    this.checkMenusSelector();
+    TreeUtils.resetCheckboxes(this.menus);
 
     // 打开添加修改弹出框
     const openModal = () => {
@@ -301,7 +302,7 @@ export class RoleComponent extends ComponentBase implements OnInit {
             this.currentRole = res.data;
 
             // 根据其中的角色菜单列表选中菜单
-            this.checkMenusSelector(true, this.menus, this.currentRole['menuIdList']);
+            TreeUtils.checkBoxes(this.menus, this.currentRole['menuIdList']);
 
             // 通知订阅者继续
             subscriber.next();
@@ -335,75 +336,7 @@ export class RoleComponent extends ComponentBase implements OnInit {
     );
   }
 
-  /**
-   * 获取所有选中了的菜单
-   * @param searchMenus                 搜索的菜单
-   * @param {Array<any>} checkedMenus   装选中菜单的对象
-   * @returns {boolean}                 搜索的菜单中是否有选中的内容
-   */
-  private getCheckedMenus(searchMenus: Array<any>, checkedMenus: Array<any> = []): boolean {
-    // 是否被选中标识符; 标识当前是否被选中和子菜单是否被选中
-    let checked = false;
-    // 循环搜索
-    for (const m of searchMenus) {
-      // 检查是否被选中
-      if (m.checked === true) {
-        checked = true;
-      }
-      // 检查当前菜单是否子菜单; 有则递归搜索
-      if (Utils.referencable(m['children']) && m['children'] instanceof Array) {
-        // 如果子菜单有被选中的, 则设置标识符为选中
-        if (this.getCheckedMenus(m['children'], checkedMenus)) {
-          // checked = true;
-        }
-      } else {
-        // 如果有子子菜单则不作为, 没有且被选中了就放入菜单
-        if (checked) {
-          checkedMenus.push(m);
-        }
-      }
-    }
-    return checked;
-  }
-
-  /**
-   * 选中或取消选中菜单
-   * @param checked                 true或false
-   * @param {Array<any>} menus      搜索的菜单
-   * @param appliedFor              是否指定菜单, 如果为null则指定所有菜单; 数组是菜单id的集合
-   */
-  private checkMenusSelector(checked: boolean = false, menus?: Array<any>, appliedFor?: Array<string> | null) {
-    // 检查是否存在需要修改的菜单
-    let exists = false;
-    // 检查参数, 不存在则使用全局
-    menus = Utils.referencable(menus) ? menus : this.menus;
-    // 循环操作
-    for (const m of menus) {
-      // 检查是否有指定的菜单
-      if (appliedFor === null) {
-        exists = true;
-      } else {
-        // 循环指定的id, 找到匹配的才进行赋值
-        for (const a of appliedFor) {
-          if (a === m.id) {
-            exists = true;
-          }
-        }
-      }
-      // 检查其子菜单
-      if (Utils.referencable(m['children']) && m['children'] instanceof Array) {
-        this.checkMenusSelector(checked, m['children'], appliedFor);
-      } else {
-        // 没有子菜单则对当前菜单进行, 有子菜单, tree控件会自动处理
-        if (exists) {
-          m.checked = checked;
-        }
-      }
-    }
-  }
 
   // endregion
-
-  // FIXME 添加角色时无法反选上次选中的菜单
 
 }
