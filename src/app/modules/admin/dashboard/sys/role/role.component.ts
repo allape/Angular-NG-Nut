@@ -289,8 +289,8 @@ export class RoleComponent extends ComponentBase implements OnInit {
    * 根据id获取角色信息
    * @param {string} id
    */
-  private getRoleInfo(id: string): Observable {
-    return new Observable(
+  private getRoleInfo(id: string): Observable<any> {
+    return new Observable<any>(
       subscriber => {
         this.http.get(
           HttpService.buildUrl(environment.modules.admin.http.urls.role.info, id),
@@ -341,7 +341,7 @@ export class RoleComponent extends ComponentBase implements OnInit {
    * @param {Array<any>} checkedMenus   装选中菜单的对象
    * @returns {boolean}                 搜索的菜单中是否有选中的内容
    */
-  private getCheckedMenus(searchMenus: Array<any>, checkedMenus?: Array<any> = []): boolean {
+  private getCheckedMenus(searchMenus: Array<any>, checkedMenus: Array<any> = []): boolean {
     // 是否被选中标识符; 标识当前是否被选中和子菜单是否被选中
     let checked = false;
     // 循环搜索
@@ -372,7 +372,7 @@ export class RoleComponent extends ComponentBase implements OnInit {
    * @param {Array<any>} menus      搜索的菜单
    * @param appliedFor              是否指定菜单, 如果为null则指定所有菜单; 数组是菜单id的集合
    */
-  private checkMenusSelector(checked?: boolean = false, menus?: Array<any>, appliedFor?: Array<string> | null = null) {
+  private checkMenusSelector(checked: boolean = false, menus?: Array<any>, appliedFor?: Array<string> | null) {
     // 检查是否存在需要修改的菜单
     let exists = false;
     // 检查参数, 不存在则使用全局
