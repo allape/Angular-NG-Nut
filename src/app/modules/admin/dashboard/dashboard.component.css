@@ -82,7 +82,8 @@ nz-layout#dashboard > .right-content > nz-footer {
   text-align: center;
 }
 
-nz-layout#dashboard > #menus {
+/* 主页菜单 */
+nz-layout#dashboard > #menus.ant-layout-sider:not(.ant-layout-sider-collapsed) {
   overflow: auto;
 }
 
